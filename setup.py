@@ -10,7 +10,7 @@ setup(
     author = "Laurent Perrinet INT - CNRS",
     author_email = "Laurent.Perrinet@univ-amu.fr",
     description = "LogGabor is a collection of tools to support all tasks associated with the representation of an image in a LogGabor pyramid.",
-    long_description=open("README.rst").read(),
+    long_description=open("README.md").read(),
     license = "GPLv2",
     keywords = ('computational neuroscience', 'simulation', 'analysis', 'visualization', 'parameters'),
     url = 'https://github.com/meduz/LogGabor', # use the URL to the github repo

@@ -7,7 +7,7 @@ White_src = $(White_pdf:.pdf=.svg)
 Test_pdf =  test_Image.pdf test_LogGabor.pdf
 Test_src = $(Test_pdf:.pdf=.ipynb)
 Test_html = $(Test_pdf:.html=.ipynb)
-test_: $(Test_pdf) LogGabor.py
+test_: $(Test_html) LogGabor.py
 
 #exp_src = experiment_whitening.py experiment_edges.py experiment_animals.py
 #experiment_: $(exp_src:.py=)
@@ -22,13 +22,29 @@ linux_edit:
 	gedit Makefile
 
 web: experiment_whitening.py experiment_edges.py LogGabor.py
-	ipython nbconvert --SphinxTransformer.author='Laurent Perrinet (INT, UMR7289)' --to HTML $<
 	zip web.zip LogGabor.py $(Test_html)
+
+# https://docs.python.org/2/distutils/packageindex.html
+pypi_push:
+	python setup.py register
+
+pypi_upload:
+	python setup.py register
+
+pypi_tags:
+	git tag 0.1 -m "Adds a tag so that we can put this on PyPI."
+	git push --tags origin master
+
+pypi_docs: index.html
+	zip web.zip index.html
+	open http://pypi.python.org/pypi?action=pkg_edit&name=LogGabor
 
 todo:
 	grep -R * (^|#)[ ]*(TODO|FIXME|XXX|HINT|TIP)( |:)([^#]*)
 # macros for tests
-test_%.pdf: test_%.ipynb LogGabor.py
+%.html: %.ipynb
+	ipython nbconvert --SphinxTransformer.author='Laurent Perrinet (INT, UMR7289)' --to HTML $<
+test_%.pdf: test_%.ipynb
 	ipython nbconvert --SphinxTransformer.author='Laurent Perrinet (INT, UMR7289)' --to latex --post PDF $<
 
 experiment_%: experiment_%.py LogGabor.py
