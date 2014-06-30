@@ -29,7 +29,7 @@ pypi_push:
 	python setup.py register
 
 pypi_upload:
-	python setup.py register
+	python setup.py sdist bdist_wininst upload
 
 pypi_tags:
 	git tag 0.1 -m "Adds a tag so that we can put this on PyPI."
