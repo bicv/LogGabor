@@ -1,7 +1,8 @@
 LogGabor
 ========
 
-A python implementation for a LogGabor pyramid representation
+A log-Gabor pyramid is an oriented multiresolution scheme for images inspired by biology.
 
-Check out  http://pythonhosted.org/LogGabor
+This package gives a python implementation.
 
+More information is available @ http://pythonhosted.org/LogGabor

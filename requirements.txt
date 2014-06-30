@@ -1,0 +1,5 @@
+numpy>=1.2
+scipy
+matplotlib
+IPython
+NeuroTools
