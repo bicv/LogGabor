@@ -26,7 +26,7 @@ web: experiment_whitening.py experiment_edges.py LogGabor.py
 
 # https://docs.python.org/2/distutils/packageindex.html
 pypi_tags:
-	git tag 0.1.1 -m "Adds a tag so that we can put this on PyPI."
+	git tag 0.1.3 -m "Adds a tag so that we can put this on PyPI."
 	git push --tags origin master
 
 pypi_push:

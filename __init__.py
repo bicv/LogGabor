@@ -1,2 +1,2 @@
-__author__ = "(c) Laurent Perrinet INT - CNRS"
-__all__ = ["LogGabor", "Image"]
+from LogGabor import Image
+from LogGabor import LogGabor
