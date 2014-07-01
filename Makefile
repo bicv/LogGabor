@@ -25,15 +25,15 @@ web: experiment_whitening.py experiment_edges.py LogGabor.py
 	zip web.zip LogGabor.py $(Test_html)
 
 # https://docs.python.org/2/distutils/packageindex.html
+pypi_tags:
+	git tag 0.1.1 -m "Adds a tag so that we can put this on PyPI."
+	git push --tags origin master
+
 pypi_push:
 	python setup.py register
 
 pypi_upload:
 	python setup.py sdist bdist_wininst upload
-
-pypi_tags:
-	git tag 0.1 -m "Adds a tag so that we can put this on PyPI."
-	git push --tags origin master
 
 pypi_docs: index.html
 	zip web.zip index.html

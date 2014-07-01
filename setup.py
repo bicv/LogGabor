@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name = "LogGabor",
-    version = "0.1",
+    version = "0.1.1",
     packages = ['LogGabor'],
     package_dir = {'LogGabor': ''},
     package_data={'LogGabor': ['ndex.html']},
