@@ -24,9 +24,12 @@ linux_edit:
 web: experiment_whitening.py experiment_edges.py LogGabor.py
 	zip web.zip LogGabor.py $(Test_html)
 
+pypi_all: pypi_tags pypi_push pypi_upload pypi_docs
 # https://docs.python.org/2/distutils/packageindex.html
 pypi_tags:
-	git tag 0.1.3 -m "Adds a tag so that we can put this on PyPI."
+	git commit -am' tagging for PyPI '
+	# in case you wish to delete tags, visit http://wptheming.com/2011/04/add-remove-github-tags/
+	git tag 0.1 -m "Adds a tag so that we can put this on PyPI."
 	git push --tags origin master
 
 pypi_push:
