@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 {
 # Image
 'N_X' : 256, # size of images

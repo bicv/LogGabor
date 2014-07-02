@@ -19,7 +19,7 @@ $(White_src): experiment_whitening.py
 white: $(White_pdf)
 
 edit:
-	mvim -p setup.py __init__.py $(NAME).py README.md Makefile
+	mvim -p setup.py __init__.py $(NAME).py README.md Makefile requirements.txt
 
 web: experiment_whitening.py experiment_edges.py $(NAME).py
 	zip web.zip LogGabor.py $(Test_html)
@@ -36,7 +36,7 @@ pypi_push:
 	python setup.py register
 
 pypi_upload:
-	python setup.py sdist bdist_wininst upload
+	python setup.py sdist upload
 
 pypi_docs: index.html
 	zip web.zip index.html
