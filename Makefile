@@ -1,4 +1,5 @@
 default: test_
+NAME = LogGabor
 
 # DECORRELATION figures
 White_pdf = figures/whitening.pdf figures/whitening_corr.pdf figures/whitening_atick.pdf
@@ -7,7 +8,7 @@ White_src = $(White_pdf:.pdf=.svg)
 Test_pdf =  test_Image.pdf test_LogGabor.pdf
 Test_src = $(Test_pdf:.pdf=.ipynb)
 Test_html = $(Test_pdf:.html=.ipynb)
-test_: $(Test_html) LogGabor.py
+test_: $(Test_html) $(NAME).py
 
 #exp_src = experiment_whitening.py experiment_edges.py experiment_animals.py
 #experiment_: $(exp_src:.py=)
@@ -17,11 +18,10 @@ $(White_src): experiment_whitening.py
 
 white: $(White_pdf)
 
-linux_edit:
-	texmaker LogGabor.py &
-	gedit Makefile
+edit:
+	mvim -p setup.py __init__.py $(NAME).py README.md Makefile
 
-web: experiment_whitening.py experiment_edges.py LogGabor.py
+web: experiment_whitening.py experiment_edges.py $(NAME).py
 	zip web.zip LogGabor.py $(Test_html)
 
 pypi_all: pypi_tags pypi_push pypi_upload pypi_docs
@@ -40,7 +40,7 @@ pypi_upload:
 
 pypi_docs: index.html
 	zip web.zip index.html
-	open http://pypi.python.org/pypi?action=pkg_edit&name=LogGabor
+	open http://pypi.python.org/pypi?action=pkg_edit&name=$(NAME)
 
 todo:
 	grep -R * (^|#)[ ]*(TODO|FIXME|XXX|HINT|TIP)( |:)([^#]*)
@@ -48,7 +48,7 @@ todo:
 %.html: %.ipynb
 	runipy $< --html $@
 
-test_%.pdf: test_%.ipynb
+%.pdf: %.ipynb
 	ipython nbconvert --SphinxTransformer.author='Laurent Perrinet (INT, UMR7289)' --to latex --post PDF $<
 
 experiment_%: experiment_%.py LogGabor.py
@@ -66,10 +66,7 @@ clean_tmp:
 	find .  -name *lock* -exec rm -fr {} \;
 	rm frioul.*
 	rm log-edge-debug.log
-
-clean_SVM:
-	rm frioul.* figures/*png figures/*SVM*txt mat/*hist* mat/*SVM* mat/*lock figures/*lock
 clean:
-	rm -f figures/* white*.mat $(latexfile).pdf *.pyc *.py~ *.npy
+	rm -fr figures/* *.pyc *.py~ build dist
 
 .PHONY: clean
