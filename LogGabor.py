@@ -25,8 +25,8 @@ class LogGabor:
         """
         self.pe = im.pe
         self.im = im
-        self.n_x = im.n_x
-        self.n_y = im.n_y
+        self.N_X = im.N_X
+        self.N_Y = im.N_Y
 
         self.f_x, self.f_y = self.im.f_x, self.im.f_y
         self.f = self.im.f
@@ -43,7 +43,7 @@ class LogGabor:
         else:
             f_radius = np.zeros(self.f.shape)
             f_radius = self.f**alpha
-            f_radius[(self.n_x-1)//2 + 1 , (self.n_y-1)//2 + 1 ] = np.inf
+            f_radius[(self.N_X-1)//2 + 1 , (self.N_Y-1)//2 + 1 ] = np.inf
             return 1. / f_radius
 
     def band(self, sf_0, B_sf, correct=False):

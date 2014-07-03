@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
 
-from distutils.core import setup
+# from distutils.core import setup
+from setuptools import setup
+
 NAME = "LogGabor"
 version = "0.1"
 
@@ -10,7 +12,6 @@ setup(
     version = version,
     packages = [NAME],
     package_dir = {NAME: ''},
-#     package_data={NAME: [u'README.md']},
     author = "Laurent Perrinet INT - CNRS",
     author_email = "Laurent.Perrinet@univ-amu.fr",
     description = "SLIP: a Simple Library for Image Processing.",

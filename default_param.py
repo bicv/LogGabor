@@ -2,13 +2,19 @@
 {
 # Image
 'N_X' : 256, # size of images
+'N_Y' : 256, # size of images
 # Log-Gabor
 #'base_levels' : 2.,
 'base_levels' : 1.618,
 'n_theta' : 24, # number of (unoriented) angles between 0. radians (included) and np.pi radians (excluded)
 'B_sf' : 1.5, # 1.5 in Geisler
 'B_theta' : 3.14159/8.,
+'do_whitening'  : True, # = self.pe.do_whitening
+'do_mask'  : True, # self.pe.do_mask
 'figpath' : 'figures/',
+'edgefigpath' : 'figures/edges/',
+'matpath' : 'mat/',
+'edgematpath' : 'mat/edges/',
 'datapath' : 'database/',
 'ext' : '.pdf',
 # EdgeFactory PARAMETERS
