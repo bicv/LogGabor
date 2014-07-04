@@ -46,7 +46,7 @@ class LogGabor:
             f_radius[(self.N_X-1)//2 + 1 , (self.N_Y-1)//2 + 1 ] = np.inf
             return 1. / f_radius
 
-    def band(self, sf_0, B_sf, correct=False):
+    def band(self, sf_0, B_sf):
         # selecting a donut (the ring around a prefered frequency)
         #
         if sf_0 == 0.: return 1.
@@ -76,7 +76,7 @@ class LogGabor:
         env *= np.sqrt(2.)
         return env
 
-    def show_loggabor(self, u, v, sf_0, B_sf, theta, B_theta, phase=0.):
+    def show_loggabor(self, u, v, sf_0, B_sf, theta, B_theta, title='', phase=0.):
         FT_lg = self.loggabor(u, v, sf_0, B_sf, theta, B_theta)
         fig, a1, a2 = self.im.show_FT(FT_lg * np.exp(-1j*phase))
         return fig, a1, a2
