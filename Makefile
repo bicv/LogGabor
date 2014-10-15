@@ -19,7 +19,9 @@ pypi_upload:
 	python setup.py sdist upload
 
 pypi_docs:
-	runipy $(NAME).ipynb  --html  index.html
+	ipython nbconvert --to html $(NAME).ipynb
+	mv $(NAME).html index.html
+	#runipy $(NAME).ipynb  --html  index.html
 	zip web.zip index.html
 	open http://pypi.python.org/pypi?action=pkg_edit&name=$(NAME)
 
