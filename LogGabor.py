@@ -95,8 +95,14 @@ if __name__ == '__main__':
 
     """
     from pylab import imread
-    # whitening
-    image = imread('database/gris512.png')[:,:,0]
-    lg = LogGabor(image.shape)
+    image = imread('database/lena512.png')[:,:,0]
+
+    from NeuroTools.parameters import ParameterSet
+    pe = ParameterSet('default_param.py')
+    pe.N_X, pe.N_Y = image.shape
+
+    from SLIP import Image
+    im = Image(pe)
+    lg = LogGabor(im)
 
 
