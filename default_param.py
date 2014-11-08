@@ -27,7 +27,7 @@
 'N_phi' : 12, #
 'N_scale' : 5, #
 'loglevel_max': 7,
-'alpha' : .0, # exponent of the color envelope
+'alpha' : 1., # exponent of the color envelope
 'N_image' : None, #use all images in the folder 200, #None
 'noise' : 0.5, #
 }
