@@ -5,6 +5,7 @@
 'N_Y' : 256, # size of images
 'do_whitening'  : True, # = self.pe.do_whitening
 'do_mask'  : True, # self.pe.do_mask
+'seed': None, # a seed for the Random Number Generator (RNG) for picking images in databases, set to None or a given number to freeze the RNG
 # Log-Gabor
 #'base_levels' : 2.,
 'base_levels' : 1.618,

@@ -7,8 +7,7 @@ See http://pythonhosted.org/LogGabor
 """
 __author__ = "(c) Laurent Perrinet INT - CNRS"
 import numpy as np
-import scipy.ndimage as nd
-from scipy.fftpack import fft2, fftshift, ifft2, ifftshift
+from numpy.fft import fft2, fftshift, ifft2, ifftshift
 
 class LogGabor:
     """
