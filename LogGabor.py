@@ -31,7 +31,7 @@ class LogGabor:
         self.f_x, self.f_y = self.im.f_x, self.im.f_y
         self.f = self.im.f
 
-        self.color = self.enveloppe_color(alpha=self.pe.alpha)
+        #self.color = self.enveloppe_color(alpha=self.pe.alpha)
 
     ## LOW LEVEL OPERATIONS
 
