@@ -30,8 +30,6 @@ class LogGabor:
         self.f_x, self.f_y = self.im.f_x, self.im.f_y
         self.f = self.im.f
 
-        self.color = self.enveloppe_color(alpha=self.pe.alpha)
-
     ## LOW LEVEL OPERATIONS
 
     def enveloppe_color(self, alpha):
@@ -47,7 +45,6 @@ class LogGabor:
 
     def band(self, sf_0, B_sf):
         # selecting a donut (the ring around a prefered frequency)
-        #
         if sf_0 == 0.: return 1.
         # see http://en.wikipedia.org/wiki/Log-normal_distribution
         env = 1./self.f*np.exp(-.5*(np.log(self.f/sf_0)**2)/B_sf**2)
@@ -67,8 +64,8 @@ class LogGabor:
 
     def loggabor(self, u, v, sf_0, B_sf, theta, B_theta):
         env = self.band(sf_0, B_sf) * \
-                self.orientation(theta, B_theta) * \
-                self.im.trans(u*1., v*1.) * self.color
+              self.orientation(theta, B_theta) * \
+              self.im.trans(u*1., v*1.)
         # normalizing energy:
         env /= np.sqrt((np.abs(env)**2).mean())
         # in the case a a single bump (see radius()), we should compensate the fact that the distribution gets complex:
@@ -103,5 +100,4 @@ if __name__ == '__main__':
     from SLIP import Image
     im = Image(pe)
     lg = LogGabor(im)
-
 
