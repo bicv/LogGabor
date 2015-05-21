@@ -9,29 +9,17 @@ __author__ = "(c) Laurent Perrinet INT - CNRS"
 import numpy as np
 from numpy.fft import fft2, fftshift, ifft2, ifftshift
 
-class LogGabor:
+from SLIP import Image
+
+class LogGabor(Image):
     """
-    defines a LogGabor transform.
+    Defines a LogGabor framework by defining a ``loggabor`` function which return the envelope of a log-Gabor filter.
 
     Its envelope is equivalent to a log-normal probability distribution on the frequency axis, and von-mises on the radial axis.
 
 
     """
-    def __init__(self, im):
-        """
-        initializes the LogGabor structure
-
-        """
-        self.pe = im.pe
-        self.im = im
-        self.N_X = im.N_X
-        self.N_Y = im.N_Y
-
-        self.f_x, self.f_y = self.im.f_x, self.im.f_y
-        self.f = self.im.f
-
     ## LOW LEVEL OPERATIONS
-
     def enveloppe_color(self, alpha):
         # 0.0, 1.0, 2.0 are resp. white, pink, red/brownian envelope
         # (see http://en.wikipedia.org/wiki/1/f_noise )
@@ -65,7 +53,7 @@ class LogGabor:
     def loggabor(self, u, v, sf_0, B_sf, theta, B_theta):
         env = self.band(sf_0, B_sf) * \
               self.orientation(theta, B_theta) * \
-              self.im.trans(u*1., v*1.)
+              self.trans(u*1., v*1.)
         # normalizing energy:
         env /= np.sqrt((np.abs(env)**2).mean())
         # in the case a a single bump (see radius()), we should compensate the fact that the distribution gets complex:
@@ -74,7 +62,7 @@ class LogGabor:
 
     def show_loggabor(self, u, v, sf_0, B_sf, theta, B_theta, title='', phase=0.):
         FT_lg = self.loggabor(u, v, sf_0, B_sf, theta, B_theta)
-        fig, a1, a2 = self.im.show_FT(FT_lg * np.exp(-1j*phase))
+        fig, a1, a2 = self.show_FT(FT_lg * np.exp(-1j*phase))
         return fig, a1, a2
 
 def _test():
@@ -90,14 +78,10 @@ if __name__ == '__main__':
     Some examples of use for the class
 
     """
+    lg = LogGabor('default_param.py')
     from pylab import imread
     image = imread('database/lena512.png')[:,:,0]
 
-    from NeuroTools.parameters import ParameterSet
-    pe = ParameterSet('default_param.py')
-    pe.N_X, pe.N_Y = image.shape
-
-    from SLIP import Image
-    im = Image(pe)
-    lg = LogGabor(im)
+    lg.N_X, lg.N_Y = image.shape
+    lg.init()
 
