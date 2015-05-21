@@ -26,6 +26,9 @@ pypi_docs:
 	zip web.zip index.html
 	open https://pypi.python.org/pypi?action=pkg_edit&name=$NAME
 
+install_dev:
+	pip uninstall -y $(NAME)
+	pip install -e .
 todo:
 	grep -R * (^|#)[ ]*(TODO|FIXME|XXX|HINT|TIP)( |:)([^#]*)
 
