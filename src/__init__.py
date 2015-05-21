@@ -1,3 +1,4 @@
+from SLIP import imread
 from .LogGabor import LogGabor
 
 def init_pylab():

@@ -8,7 +8,7 @@ See http://pythonhosted.org/LogGabor
 __author__ = "(c) Laurent Perrinet INT - CNRS"
 import numpy as np
 
-from SLIP import Image
+from SLIP import Image, imread
 
 class LogGabor(Image):
     """
@@ -67,9 +67,6 @@ if __name__ == '__main__':
 
     """
     lg = LogGabor('default_param.py')
-    from pylab import imread
     image = imread('database/lena512.png')[:,:,0]
-
-    lg.N_X, lg.N_Y = image.shape
-    lg.init()
+    lg.set_size(image)
 
