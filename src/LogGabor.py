@@ -7,7 +7,6 @@ See http://pythonhosted.org/LogGabor
 """
 __author__ = "(c) Laurent Perrinet INT - CNRS"
 import numpy as np
-from numpy.fft import fft2, fftshift, ifft2, ifftshift
 
 from SLIP import Image
 
@@ -20,17 +19,6 @@ class LogGabor(Image):
 
     """
     ## LOW LEVEL OPERATIONS
-    def enveloppe_color(self, alpha):
-        # 0.0, 1.0, 2.0 are resp. white, pink, red/brownian envelope
-        # (see http://en.wikipedia.org/wiki/1/f_noise )
-        if alpha == 0:
-            return 1.
-        else:
-            f_radius = np.zeros(self.f.shape)
-            f_radius = self.f**alpha
-            f_radius[(self.N_X-1)//2 + 1 , (self.N_Y-1)//2 + 1 ] = np.inf
-            return 1. / f_radius
-
     def band(self, sf_0, B_sf):
         # selecting a donut (the ring around a prefered frequency)
         if sf_0 == 0.: return 1.
@@ -42,21 +30,21 @@ class LogGabor(Image):
         # selecting one direction,  theta is the mean direction, B_theta the spread
         # we use a von-mises distribution on the orientation
         # see http://en.wikipedia.org/wiki/Von_Mises_distribution
-        angle = np.arctan2(self.f_y, self.f_x)
-        cos_angle = np.cos(angle-theta)
+        cos_angle = np.cos(self.f_theta-theta)
         enveloppe_orientation = np.exp(cos_angle/B_theta**2)
 #        As shown in:
 #        http://www.csse.uwa.edu.au/~pk/research/matlabfns/PhaseCongruency/Docs/convexpl.html
-#        this simple bump allows (without the symmetric) to code both symmetric and anti-symmetric parts
+#        this single bump allows (without the symmetric) to code both symmetric and anti-symmetric parts
         return enveloppe_orientation
 
+    ## MID LEVEL OPERATIONS
     def loggabor(self, u, v, sf_0, B_sf, theta, B_theta):
         env = self.band(sf_0, B_sf) * \
               self.orientation(theta, B_theta) * \
               self.trans(u*1., v*1.)
         # normalizing energy:
         env /= np.sqrt((np.abs(env)**2).mean())
-        # in the case a a single bump (see radius()), we should compensate the fact that the distribution gets complex:
+        # in the case a a single bump (see ``orientation``), we should compensate the fact that the distribution gets complex:
         env *= np.sqrt(2.)
         return env
 
