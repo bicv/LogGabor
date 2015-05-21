@@ -2,7 +2,7 @@ default: pypi_docs
 NAME = LogGabor
 
 edit:
-	mvim -p setup.py __init__.py $(NAME).py README.md Makefile requirements.txt
+	mvim -p setup.py src/__init__.py src/$(NAME).py README.md Makefile requirements.txt
 
 pypi_all: pypi_tags pypi_push pypi_upload pypi_docs
 # https://docs.python.org/2/distutils/packageindex.html
