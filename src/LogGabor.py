@@ -18,6 +18,9 @@ class LogGabor(Image):
 
 
     """
+    def __init__(self, pe):
+        Image.__init__(self, pe)
+
     ## LOW LEVEL OPERATIONS
     def band(self, sf_0, B_sf):
         # selecting a donut (the ring around a prefered frequency)
@@ -38,10 +41,11 @@ class LogGabor(Image):
         return enveloppe_orientation
 
     ## MID LEVEL OPERATIONS
-    def loggabor(self, u, v, sf_0, B_sf, theta, B_theta):
+    def loggabor(self, u, v, sf_0, B_sf, theta, B_theta, preprocess=True):
         env = self.band(sf_0, B_sf) * \
               self.orientation(theta, B_theta) * \
               self.trans(u*1., v*1.)
+        if preprocess : env *= self.f_mask
         # normalizing energy:
         env /= np.sqrt((np.abs(env)**2).mean())
         # in the case a a single bump (see ``orientation``), we should compensate the fact that the distribution gets complex:

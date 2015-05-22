@@ -32,9 +32,14 @@ install_dev:
 todo:
 	grep -R * (^|#)[ ]*(TODO|FIXME|XXX|HINT|TIP)( |:)([^#]*)
 
+
+console:
+	open -a /Applications/Utilities/Console.app/ log-sparseedges-debug.log
+
 # macros for tests
-%.html: %.ipynb
-	runipy $< --html $@
+index.html: $(NAME).ipynb
+	runipy $(NAME).ipynb -o
+	ipython nbconvert --SphinxTransformer.author='Laurent Perrinet (INT, UMR7289)' --to html index.html $(NAME).ipynb
 
 %.pdf: %.ipynb
 	ipython nbconvert --SphinxTransformer.author='Laurent Perrinet (INT, UMR7289)' --to latex --post PDF $<
