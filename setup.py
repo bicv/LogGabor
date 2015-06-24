@@ -4,7 +4,7 @@
 from setuptools import setup, find_packages
 
 NAME = "LogGabor"
-version = "0.1.1"
+version = "0.2"
 
 setup(
     name = NAME,
