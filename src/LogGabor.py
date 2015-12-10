@@ -21,6 +21,7 @@ class LogGabor(Image):
     """
     def __init__(self, pe):
         Image.__init__(self, pe)
+        self.init_logging(name='LogGabor')
 
     ## LOW LEVEL OPERATIONS
     def band(self, sf_0, B_sf):
