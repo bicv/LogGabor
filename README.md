@@ -16,4 +16,3 @@ More information is available @ http://nbviewer.ipython.org/github/meduz/LogGabo
   ![ScreenShot ](http://invibe.net/cgi-bin/index.cgi/Figures/Perrinet08spie/FigureDeux?action=AttachFile&do=get&target=GoldenPyramid.png)
   
   The Golden Laplacian Pyramid. To represent the edges of the image at different levels, we may use a simple recursive approach constructing progressively a set of images of decreasing sizes, from a base to the summit of a pyramid (see http://invibe.net/LaurentPerrinet/Publications/Perrinet15bicv for more details).
-  
