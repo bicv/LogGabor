@@ -44,6 +44,12 @@ class LogGabor(Image):
 
     ## MID LEVEL OPERATIONS
     def loggabor(self, u, v, sf_0, B_sf, theta, B_theta, preprocess=True):
+        """
+
+        Note that the convention for coordinates follows that of matrices: the origin is at the top left of the image, and coordinates are first the rows (vertical axis, going down) then the columns (horizontal axis, going right).
+
+        """
+        
         env = self.band(sf_0, B_sf) * \
               self.orientation(theta, B_theta) * \
               self.trans(u*1., v*1.)
