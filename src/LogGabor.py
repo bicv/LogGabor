@@ -32,11 +32,23 @@ class LogGabor(Image):
         return env
 
     def orientation(self, theta, B_theta):
+        """
+    Returns the orientation envelope:
+    We use a von-Mises distribution on the orientation:
+    - mean orientation is ``theta`` (in radians),
+    - ``B_theta`` is the bandwidth (in radians). It is equal to the standard deviation of the Gaussian
+    envelope which approximate the distribution for low bandwidths. The Half-Width at Half Height is
+    given by approximately np.sqrt(2*B_theta_**2*np.log(2)).
+
         # selecting one direction,  theta is the mean direction, B_theta the spread
         # we use a von-mises distribution on the orientation
         # see http://en.wikipedia.org/wiki/Von_Mises_distribution
-        cos_angle = np.cos(self.f_theta-theta)
-        enveloppe_orientation = np.exp(cos_angle/B_theta**2)
+        """
+        if B_theta is np.inf: # for large bandwidth, returns a strictly flat envelope
+            enveloppe_orientation = 1.
+        else: # non pathological case                
+            cos_angle = np.cos(self.f_theta-theta)
+            enveloppe_orientation = np.exp(cos_angle/B_theta**2)
 #        As shown in:
 #        http://www.csse.uwa.edu.au/~pk/research/matlabfns/PhaseCongruency/Docs/convexpl.html
 #        this single bump allows (without the symmetric) to code both symmetric and anti-symmetric parts
@@ -49,7 +61,7 @@ class LogGabor(Image):
         Note that the convention for coordinates follows that of matrices: the origin is at the top left of the image, and coordinates are first the rows (vertical axis, going down) then the columns (horizontal axis, going right).
 
         """
-        
+
         env = self.band(sf_0, B_sf) * \
               self.orientation(theta, B_theta) * \
               self.trans(u*1., v*1.)
@@ -81,4 +93,3 @@ if __name__ == '__main__':
     lg = LogGabor('default_param.py')
     image = imread('database/lena512.png')[:,:,0]
     lg.set_size(image)
-
