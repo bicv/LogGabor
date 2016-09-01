@@ -1,6 +1,6 @@
 default: pypi_docs
 NAME = LogGabor
-version = 0.3.1 # << to change in setup.py
+version = 0.3.2 # << to change in setup.py
 
 edit:
 	mvim -p setup.py src/__init__.py src/$(NAME).py README.md Makefile requirements.txt
