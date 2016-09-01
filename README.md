@@ -11,10 +11,10 @@ Examples and documentation is available @ https://pythonhosted.org/LogGabor/
 
 This package provides with a python implementation.
 
-More information is available @ http://nbviewer.ipython.org/github/meduz/LogGabor/blob/master/SLIP.ipynb
-Tests for the packages are available @ http://nbviewer.ipython.org/github/meduz/LogGabor/blob/master/test_SLIP.ipynb
+[![Research software impact](http://depsy.org/api/package/pypi/LogGabor/badge.svg)](http://depsy.org/package/python/LogGabor)
+
+More information is available @ http://nbviewer.ipython.org/github/meduz/LogGabor/blob/master/LogGabor.ipynb
 
   ![ScreenShot ](http://invibe.net/cgi-bin/index.cgi/Figures/Perrinet08spie/FigureDeux?action=AttachFile&do=get&target=GoldenPyramid.png)
   
-  The Golden Laplacian Pyramid. To represent the edges of the image at different levels, we may use a simple recursive approach constructing progressively a set of images of decreasing sizes, from a base to the summit of a pyramid.  see http://invibe.net/LaurentPerrinet/Publications/Perrinet15bicv
-  
+  The Golden Laplacian Pyramid. To represent the edges of the image at different levels, we may use a simple recursive approach constructing progressively a set of images of decreasing sizes, from a base to the summit of a pyramid (see http://invibe.net/LaurentPerrinet/Publications/Perrinet15bicv for more details).
