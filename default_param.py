@@ -11,6 +11,7 @@
 # 'N_Y' : 64, # size of images
 'noise' : 0.1, # level of noise when we use some
 'do_mask'  : True, # self.pe.do_mask
+'mask_exponent': 3., #sharpness of the mask
 # whitening parameters:
 'do_whitening'  : True, # = self.pe.do_whitening
 'white_name_database' : 'serre07_distractors',
