@@ -44,4 +44,5 @@
 'edgematpath': 'cache/edges/',
 'datapath': 'database/',
 'ext' : '.pdf',
+'figsize': 8.,
 }
