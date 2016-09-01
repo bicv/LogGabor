@@ -38,10 +38,10 @@
 'N_scale' : 5, #
 'loglevel_max': 7,
 # PATHS
-'figpath' : 'figures/',
-'edgefigpath' : 'figures/edges/',
-'matpath' : 'mat/',
-'edgematpath' : 'mat/edges/',
-'datapath' : 'database/',
+'figpath': 'results/',
+'edgefigpath': 'results/edges/',
+'matpath': 'cache/',
+'edgematpath': 'cache/edges/',
+'datapath': 'database/',
 'ext' : '.pdf',
 }
