@@ -4,7 +4,7 @@
 from setuptools import setup, find_packages
 
 NAME = "LogGabor"
-version = "0.3" # << to change in Makefile
+version = "0.3.1" # << to change in Makefile
 
 setup(
     name = NAME,
@@ -17,8 +17,8 @@ setup(
     license = "GPLv2",
     install_requires=['numpy', 'matplotlib', 'SLIP'],
     keywords = ('computational neuroscience', 'simulation', 'analysis', 'visualization', 'biologically-inspired', 'computer vision'),
-    url = 'https://github.com/meduz/' + NAME, # use the URL to the github repo
-    download_url = 'https://github.com/meduz/' + NAME + '/tarball/' + version,
+    url = 'https://github.com/bicv/' + NAME, # use the URL to the github repo
+    download_url = 'https://github.com/bicv/' + NAME + '/tarball/' + version,
     classifiers = ['Development Status :: 3 - Alpha',
                    'Environment :: Console',
                    'License :: OSI Approved :: GNU General Public License (GPL)',

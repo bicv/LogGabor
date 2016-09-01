@@ -15,7 +15,7 @@ This package provides with a python implementation.
 
 [![Research software impact](http://depsy.org/api/package/pypi/LogGabor/badge.svg)](http://depsy.org/package/python/LogGabor)
 
-More information is available @ http://nbviewer.ipython.org/github/meduz/LogGabor/blob/master/LogGabor.ipynb
+More information is available @ http://nbviewer.ipython.org/github/bicv/LogGabor/blob/master/LogGabor.ipynb
 
   ![ScreenShot ](http://invibe.net/cgi-bin/index.cgi/Figures/Perrinet08spie/FigureDeux?action=AttachFile&do=get&target=GoldenPyramid.png)
 
