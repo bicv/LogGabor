@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 NAME = "LogGabor"
 version = "0.3.1" # << to change in Makefile
-
+#  
 setup(
     name = NAME,
     version = version,
