@@ -1,4 +1,5 @@
 [![PyPI version](https://badge.fury.io/py/LogGabor.svg)](https://badge.fury.io/py/LogGabor)
+[![Research software impact](http://depsy.org/api/package/pypi/LogGabor/badge.svg)](http://depsy.org/package/python/LogGabor)
 
 LogGabor
 ========
@@ -12,8 +13,6 @@ Examples and documentation is available @ https://pythonhosted.org/LogGabor/
   Log-Gabor filters. To represent the edges of the image at different levels and orientations, we use a multi-scale approach constructing a set of filters of different scales and according to oriented log-Gabor filters. This is represented here by stacking images on a Golden Rectangle Perrinet (2008), that is where the aspect ratio is the golden section ϕ=1+5√2. The level represents coefficients' amplitude, hue corresponds to orientation. We present here the base image on the left and the successive levels of the pyramid in a clockwise fashion (for clarity, we stopped at level 8). Note that here we also use ϕ^2 (that is ϕ+1) as the down-scaling factor so that the pixelwise resolution of the pyramid images correspond across scales.
 
 This package provides with a python implementation.
-
-[![Research software impact](http://depsy.org/api/package/pypi/LogGabor/badge.svg)](http://depsy.org/package/python/LogGabor)
 
 More information is available @ http://nbviewer.ipython.org/github/bicv/LogGabor/blob/master/LogGabor.ipynb
 
