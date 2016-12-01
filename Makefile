@@ -1,6 +1,7 @@
 default: pypi_docs
 NAME = LogGabor
-version = 0.3.2 # << to change in setup.py
+#version = 0.3.2 # << to change in setup.py
+VERSION=`python3 -c'import LogGabor; print(LogGabor.__version__)'`
 
 edit:
 	mvim -p setup.py src/__init__.py src/$(NAME).py README.md Makefile requirements.txt
@@ -10,7 +11,7 @@ pypi_all: pypi_tags pypi_push pypi_upload
 pypi_tags:
 	git commit -am' tagging for PyPI '
 	# in case you wish to delete tags, visit http://wptheming.com/2011/04/add-remove-github-tags/
-	git tag $(version) -m "Adds a tag so that we can put this on PyPI."
+	git tag $(VERSION) -m "Adds a tag so that we can put this on PyPI."
 	git push --tags origin master
 
 pypi_push:
