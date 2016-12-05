@@ -4,6 +4,7 @@
 from setuptools import setup, find_packages
 
 NAME = "LogGabor"
+import LogGabor
 VERSION = LogGabor.__version__ # << to change in __init__.py
 
 setup(
