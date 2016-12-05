@@ -4,21 +4,27 @@
 from setuptools import setup, find_packages
 
 NAME = "LogGabor"
-version = "0.3.2" # << to change in Makefile
+VERSION = LogGabor.__version__ # << to change in __init__.py
 
 setup(
     name = NAME,
-    version = version,
+    version = VERSION,
     packages = find_packages(exclude=['contrib', 'docs', 'tests']),
      author = "Laurent Perrinet INT - CNRS",
     author_email = "Laurent.Perrinet@univ-amu.fr",
     description = "A log-Gabor pyramid is an oriented multiresolution scheme for images inspired by biology.",
     long_description=open("README.md").read(),
     license = "GPLv2",
-    install_requires=['numpy', 'matplotlib', 'SLIP'],
+    install_requires=['SLIP'],
+    extras_require={
+                'html' : [
+                         'vispy',
+                         'matplotlib'
+                         'jupyter>=1.0']
+    },
     keywords = ('computational neuroscience', 'simulation', 'analysis', 'visualization', 'biologically-inspired', 'computer vision'),
     url = 'https://github.com/bicv/' + NAME, # use the URL to the github repo
-    download_url = 'https://github.com/bicv/' + NAME + '/tarball/' + version,
+    download_url = 'https://github.com/bicv/' + NAME + '/tarball/' + VERSION,
     classifiers = ['Development Status :: 3 - Alpha',
                    'Environment :: Console',
                    'License :: OSI Approved :: GNU General Public License (GPL)',

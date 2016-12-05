@@ -1,6 +1,5 @@
 default: pypi_docs
 NAME = LogGabor
-#version = 0.3.2 # << to change in setup.py
 VERSION=`python3 -c'import LogGabor; print(LogGabor.__version__)'`
 
 edit:
@@ -32,7 +31,6 @@ install_dev:
 	pip3 uninstall -y $(NAME) ; pip3 install -e .
 todo:
 	grep -R * (^|#)[ ]*(TODO|FIXME|XXX|HINT|TIP)( |:)([^#]*)
-
 
 console:
 	open -a /Applications/Utilities/Console.app/ log-sparseedges-debug.log
