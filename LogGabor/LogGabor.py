@@ -9,7 +9,7 @@ See http://pythonhosted.org/LogGabor
 __author__ = "(c) Laurent Perrinet INT - CNRS"
 import numpy as np
 
-from SLIP import Image, imread
+from SLIP import Image
 
 class LogGabor(Image):
     """
@@ -46,7 +46,7 @@ class LogGabor(Image):
         """
         if B_theta is np.inf: # for large bandwidth, returns a strictly flat envelope
             enveloppe_orientation = 1.
-        else: # non pathological case                
+        else: # non pathological case
             cos_angle = np.cos(self.f_theta-theta)
             enveloppe_orientation = np.exp(cos_angle/B_theta**2)
 #        As shown in:
@@ -91,5 +91,6 @@ if __name__ == '__main__':
 
     """
     lg = LogGabor('default_param.py')
+    from SLIP import imread
     image = imread('database/lena512.png')[:,:,0]
     lg.set_size(image)

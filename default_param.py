@@ -44,5 +44,7 @@
 'edgematpath': 'data_cache/edges',
 'datapath': 'database',
 'ext' : '.pdf',
-'figsize': 8.,
+'figsize': 14.,
+'formats': ['pdf', 'svg', 'jpg'],
+'dpi': 450,
 }

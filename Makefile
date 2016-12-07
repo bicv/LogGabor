@@ -1,6 +1,6 @@
-default: pypi_docs
 NAME = LogGabor
 VERSION=`python3 -c'import LogGabor; print(LogGabor.__version__)'`
+default: $(NAME).pdf
 
 edit:
 	mvim -p setup.py src/__init__.py src/$(NAME).py README.md Makefile requirements.txt
@@ -21,7 +21,7 @@ pypi_upload:
 
 pypi_docs:
 	#rm web.zip
-	#ipython nbconvert --to html $(NAME).ipynb
+	#ipython3 nbconvert --to html $(NAME).ipynb
 	#mv $(NAME).html index.html
 	#runipy $(NAME).ipynb  --html  index.html
 	zip web.zip index.html
@@ -36,12 +36,8 @@ console:
 	open -a /Applications/Utilities/Console.app/ log-sparseedges-debug.log
 
 # macros for tests
-index.html: $(NAME).ipynb
-	runipy $(NAME).ipynb -o
-	ipython nbconvert --SphinxTransformer.author='Laurent Perrinet (INT, UMR7289)' --to html index.html $(NAME).ipynb
-
 %.pdf: %.ipynb
-	ipython nbconvert --SphinxTransformer.author='Laurent Perrinet (INT, UMR7289)' --to latex --post PDF $<
+	jupyter nbconvert --SphinxTransformer.author='Laurent Perrinet (INT, UMR7289)' --to pdf $<
 
 # cleaning macros
 clean_tmp:
