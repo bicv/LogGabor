@@ -22,6 +22,7 @@ class LogGabor(Image):
     def __init__(self, pe):
         Image.__init__(self, pe)
         self.init_logging(name='LogGabor')
+        self.init()
 
     ## PYRAMID
     def init(self):
