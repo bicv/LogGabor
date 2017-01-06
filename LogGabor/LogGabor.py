@@ -31,15 +31,20 @@ class LogGabor(Image):
         self.n_levels = int(np.log(np.max((self.pe.N_X, self.pe.N_Y)))/np.log(self.pe.base_levels))
         self.sf_0 = 1. / np.logspace(1, self.n_levels, self.n_levels, base=self.pe.base_levels)
         self.theta = np.linspace(-np.pi/2, np.pi/2, self.pe.n_theta+1)[1:]
-
         self.oc = (self.pe.N_X * self.pe.N_Y * self.pe.n_theta * self.n_levels) #(1 - self.pe.base_levels**-2)**-1)
 
     def linear_pyramid(self, image):
+        theta_bin = (self.theta + np.hstack((self.theta[-1]-np.pi, self.theta[:-1]))) /2
+        #self.theta[:-1] + self.theta[1:]) / 2. # middles
+        binedges_theta = np.hstack((theta_bin, theta_bin[0]+np.pi))
+        width = binedges_theta[1:] - binedges_theta[:-1]
+        B_thetas = self.pe.B_theta * width / (np.pi/self.pe.n_theta)
+
         C = np.empty((self.pe.N_X, self.pe.N_Y, self.pe.n_theta, self.n_levels), dtype=np.complex)
         for i_sf_0, sf_0 in enumerate(self.sf_0):
-            for i_theta, theta in enumerate(self.theta):
+            for i_theta, (theta, B_theta) in enumerate(zip(self.theta, B_thetas)):
                 FT_lg = self.loggabor(0, 0, sf_0=sf_0, B_sf=self.pe.B_sf,
-                                    theta=theta, B_theta=self.pe.B_theta)
+                                    theta=theta, B_theta=B_theta)
                 C[:, :, i_theta, i_sf_0] = self.FTfilter(image, FT_lg, full=True)
         return C
 
