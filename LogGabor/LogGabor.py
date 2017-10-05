@@ -60,7 +60,7 @@ class LogGabor(Image):
         phi = (np.sqrt(5) +1.)/2. # golden ratio
         opts= {'vmin':0., 'vmax':1., 'interpolation':'nearest', 'origin':'upper'}
         fig_width = 13
-        fig = plt.figure(figsize=(fig_width, fig_width/phi))
+        fig = plt.figure(figsize=(fig_width, fig_width/phi), frameon=True)
         xmin, ymin, size = 0, 0, 1.
         axs = []
         for i_sf_0, sf_0_ in enumerate(self.sf_0):
@@ -74,7 +74,7 @@ class LogGabor(Image):
                 im_RGB += im_abs[:,:, np.newaxis] * RGB[np.newaxis, np.newaxis, :]
 
             im_RGB /= im_RGB.max()
-            ax.imshow(im_RGB, **opts)
+            ax.imshow(1-im_RGB, **opts)
             #a.grid(False)
             ax.grid(b=False, which="both")
             i_orientation = np.mod(i_sf_0, 4)
