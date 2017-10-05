@@ -13,7 +13,7 @@ setup(
      author = "Laurent Perrinet INT - CNRS",
     author_email = "Laurent.Perrinet@univ-amu.fr",
     description = "A log-Gabor pyramid is an oriented multiresolution scheme for images inspired by biology.",
-    long_description=open("README.md").read(),
+    #long_description=open("README.md").read(),
     license = "GPLv2",
     install_requires=['SLIP'],
     extras_require={
