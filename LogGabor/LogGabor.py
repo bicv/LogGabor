@@ -32,7 +32,8 @@ class LogGabor(Image):
         self.sf_0 = 1. / np.logspace(1, self.n_levels, self.n_levels, base=self.pe.base_levels)
         self.theta = np.linspace(-np.pi/2, np.pi/2, self.pe.n_theta+1)[1:]
         self.oc = (self.pe.N_X * self.pe.N_Y * self.pe.n_theta * self.n_levels) #(1 - self.pe.base_levels**-2)**-1)
-
+        if self.pe.use_cache is True:
+            self.cache = {'band':{}, 'orientation':{}}
 
     def linear_pyramid(self, image):
         # theta_bin = (self.theta + np.hstack((self.theta[-1]-np.pi, self.theta[:-1]))) /2
@@ -95,14 +96,23 @@ class LogGabor(Image):
         return fig, axs
 
     ## LOW LEVEL OPERATIONS
-    def band(self, sf_0, B_sf):
+    def band(self, sf_0, B_sf, force=False):
         # selecting a donut (the ring around a prefered frequency)
-        if sf_0 == 0.: return 1.
-        # see http://en.wikipedia.org/wiki/Log-normal_distribution
-        env = 1./self.f*np.exp(-.5*(np.log(self.f/sf_0)**2)/B_sf**2)
+        if sf_0 == 0.:
+            return 1.
+        elif self.pe.use_cache and not force:
+            tag = str(sf_0) + '_' + str(B_sf)
+            try:
+                return self.cache['band'][tag]
+            except:
+                self.cache['band'][tag] = self.band(sf_0, B_sf, force=True)
+                return self.cache['band'][tag]
+        else:
+            # see http://en.wikipedia.org/wiki/Log-normal_distribution
+            env = 1./self.f*np.exp(-.5*(np.log(self.f/sf_0)**2)/B_sf**2)
         return env
 
-    def orientation(self, theta, B_theta):
+    def orientation(self, theta, B_theta, force=False):
         """
     Returns the orientation envelope:
     We use a von-Mises distribution on the orientation:
@@ -117,12 +127,20 @@ class LogGabor(Image):
         """
         if B_theta is np.inf: # for large bandwidth, returns a strictly flat envelope
             enveloppe_orientation = 1.
+        elif self.pe.use_cache and not force:
+            tag = str(theta) + '_' + str(B_theta)
+            try:
+                return self.cache['orientation'][tag]
+            except:
+                self.cache['orientation'][tag] = self.orientation(theta, B_theta, force=True)
+                return self.cache['orientation'][tag]
         else: # non pathological case
+            # As shown in:
+            #  http://www.csse.uwa.edu.au/~pk/research/matlabfns/PhaseCongruency/Docs/convexpl.html
+            # this single bump allows (without the symmetric) to code both symmetric
+            # and anti-symmetric parts in one shot.
             cos_angle = np.cos(self.f_theta-theta)
             enveloppe_orientation = np.exp(cos_angle/B_theta**2)
-#        As shown in:
-#        http://www.csse.uwa.edu.au/~pk/research/matlabfns/PhaseCongruency/Docs/convexpl.html
-#        this single bump allows (without the symmetric) to code both symmetric and anti-symmetric parts
         return enveloppe_orientation
 
     ## MID LEVEL OPERATIONS
@@ -136,7 +154,7 @@ class LogGabor(Image):
         env = self.band(sf_0, B_sf) * \
               self.orientation(theta, B_theta)
         if not(u==0.) and not(v==0.): # bypass translation whenever none is needed
-              env *= self.trans(u*1., v*1.)
+              env = env.astype(np.complex128) * self.trans(u*1., v*1.)
         if preprocess : env *= self.f_mask
         # normalizing energy:
         env /= np.sqrt((np.abs(env)**2).mean())
