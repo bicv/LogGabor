@@ -34,6 +34,7 @@ class LogGabor(Image):
         self.oc = (self.pe.N_X * self.pe.N_Y * self.pe.n_theta * self.n_levels) #(1 - self.pe.base_levels**-2)**-1)
         if self.pe.use_cache is True:
             self.cache = {'band':{}, 'orientation':{}}
+        # self.envelope = np.zeros((self.pe.N_X, self.pe.N_Y))
 
     def linear_pyramid(self, image):
         # theta_bin = (self.theta + np.hstack((self.theta[-1]-np.pi, self.theta[:-1]))) /2
@@ -158,8 +159,7 @@ class LogGabor(Image):
 
         """
 
-        env = self.band(sf_0, B_sf) * \
-              self.orientation(theta, B_theta)
+        env = np.multiply(self.band(sf_0, B_sf), self.orientation(theta, B_theta))
         if not(u==0.) and not(v==0.): # bypass translation whenever none is needed
               env = env.astype(np.complex128) * self.trans(u*1., v*1.)
         if preprocess : env *= self.f_mask
