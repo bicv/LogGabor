@@ -28,7 +28,6 @@
 'n_theta' : 24, # number of (unoriented) angles between 0. radians (included) and np.pi radians (excluded)
 'B_sf' : .4, # 1.5 in Geisler
 'B_theta' : 3.14159/18.,
-'use_cache' : True,
 # EdgeFactory PARAMETERS
 'd_width' : 45., # Geisler 1.23 deg (full image = 45deg)
 'd_min' : .25, # Geisler 1.23 deg (full image = 45deg)
@@ -39,6 +38,7 @@
 'N_scale' : 5, #
 'loglevel_max': 7,
 # PATHS
+'use_cache' : True,
 'figpath': 'results',
 'edgefigpath': 'results/edges',
 'matpath': 'data_cache',
@@ -48,4 +48,5 @@
 'figsize': 14.,
 'formats': ['pdf', 'svg', 'jpg'],
 'dpi': 450,
+'verbose': 0,
 }

@@ -97,7 +97,12 @@ class LogGabor(Image):
 
     ## LOW LEVEL OPERATIONS
     def band(self, sf_0, B_sf, force=False):
-        # selecting a donut (the ring around a prefered frequency)
+        """
+        Returns the radial frequency envelope:
+
+        Selects a preferred spatial frequency ``sf_0`` and a bandwidth ``B_sf``.
+
+        """
         if sf_0 == 0.:
             return 1.
         elif self.pe.use_cache and not force:
@@ -105,6 +110,7 @@ class LogGabor(Image):
             try:
                 return self.cache['band'][tag]
             except:
+                if self.pe.verbose>50: print('doing band cache for tag ', tag)
                 self.cache['band'][tag] = self.band(sf_0, B_sf, force=True)
                 return self.cache['band'][tag]
         else:
@@ -114,12 +120,12 @@ class LogGabor(Image):
 
     def orientation(self, theta, B_theta, force=False):
         """
-    Returns the orientation envelope:
-    We use a von-Mises distribution on the orientation:
-    - mean orientation is ``theta`` (in radians),
-    - ``B_theta`` is the bandwidth (in radians). It is equal to the standard deviation of the Gaussian
-    envelope which approximate the distribution for low bandwidths. The Half-Width at Half Height is
-    given by approximately np.sqrt(2*B_theta_**2*np.log(2)).
+        Returns the orientation envelope:
+        We use a von-Mises distribution on the orientation:
+        - mean orientation is ``theta`` (in radians),
+        - ``B_theta`` is the bandwidth (in radians). It is equal to the standard deviation of the Gaussian
+        envelope which approximate the distribution for low bandwidths. The Half-Width at Half Height is
+        given by approximately np.sqrt(2*B_theta_**2*np.log(2)).
 
         # selecting one direction,  theta is the mean direction, B_theta the spread
         # we use a von-mises distribution on the orientation
@@ -132,6 +138,7 @@ class LogGabor(Image):
             try:
                 return self.cache['orientation'][tag]
             except:
+                if self.pe.verbose>50: print('doing orientation cache for tag ', tag)
                 self.cache['orientation'][tag] = self.orientation(theta, B_theta, force=True)
                 return self.cache['orientation'][tag]
         else: # non pathological case
