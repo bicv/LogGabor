@@ -33,6 +33,7 @@ class LogGabor(Image):
         self.theta = np.linspace(-np.pi/2, np.pi/2, self.pe.n_theta+1)[1:]
         self.oc = (self.pe.N_X * self.pe.N_Y * self.pe.n_theta * self.n_levels) #(1 - self.pe.base_levels**-2)**-1)
 
+
     def linear_pyramid(self, image):
         # theta_bin = (self.theta + np.hstack((self.theta[-1]-np.pi, self.theta[:-1]))) /2
         #self.theta[:-1] + self.theta[1:]) / 2. # middles
@@ -133,8 +134,9 @@ class LogGabor(Image):
         """
 
         env = self.band(sf_0, B_sf) * \
-              self.orientation(theta, B_theta) * \
-              self.trans(u*1., v*1.)
+              self.orientation(theta, B_theta)
+        if not(u==0.) and not(v==0.): # bypass translation whenever none is needed
+              env *= self.trans(u*1., v*1.)
         if preprocess : env *= self.f_mask
         # normalizing energy:
         env /= np.sqrt((np.abs(env)**2).mean())
@@ -146,8 +148,6 @@ class LogGabor(Image):
         FT_lg = self.loggabor(u, v, sf_0, B_sf, theta, B_theta)
         fig, a1, a2 = self.show_FT(FT_lg * np.exp(-1j*phase))
         return fig, a1, a2
-
-
 
 def _test():
     import doctest
