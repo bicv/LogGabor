@@ -29,7 +29,8 @@ class LogGabor(Image):
         Image.init(self)
 
         self.n_levels = int(np.log(np.max((self.pe.N_X, self.pe.N_Y)))/np.log(self.pe.base_levels))
-        self.sf_0 = 1. / np.logspace(1, self.n_levels, self.n_levels, base=self.pe.base_levels)
+        self.sf_0 = .5 * (1 - 1/self.n_levels) / np.logspace(0, self.n_levels, self.n_levels, base=self.pe.base_levels)
+        self.sf_0 = self.sf_0[::-1]
         self.theta = np.linspace(-np.pi/2, np.pi/2, self.pe.n_theta+1)[1:]
         self.oc = (self.pe.N_X * self.pe.N_Y * self.pe.n_theta * self.n_levels) #(1 - self.pe.base_levels**-2)**-1)
         if self.pe.use_cache is True:
