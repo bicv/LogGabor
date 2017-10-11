@@ -46,7 +46,7 @@ class LogGabor(Image):
                 C[:, :, i_theta, i_sf_0] = self.FTfilter(image, FT_lg, full=True)
         return C
 
-    def golden_pyramid(self, z):
+    def golden_pyramid(self, z, mask=False):
         """
         The Golden Laplacian Pyramid.
         To represent the edges of the image at different levels, we may use a simple recursive approach constructing progressively a set of images of decreasing sizes, from a base to the summit of a pyramid. Using simple down-scaling and up-scaling operators we may approximate well a Laplacian operator. This is represented here by stacking images on a Golden Rectangle, that is where the aspect ratio is the golden section $\phi \eqdef \frac{1+\sqrt{5}}{2}$. We present here the base image on the left and the successive levels of the pyramid in a clockwise fashion (for clarity, we stopped at level $8$). Note that here we also use $\phi^2$ (that is $\phi+1$) as the down-scaling factor so that the resolution of the pyramid images correspond across scales. Note at last that coefficient are very kurtotic: most are near zero, the distribution of coefficients has long tails.
@@ -73,6 +73,13 @@ class LogGabor(Image):
             im_RGB /= im_RGB.max()
             ax.imshow(1-im_RGB, **opts)
             ax.grid(b=False, which="both")
+            if mask:
+                linewidth_mask = 1 #
+                from matplotlib.patches import Ellipse
+                circ = Ellipse((.5*self.pe.N_Y, .5*self.pe.N_X),
+                                self.pe.N_Y-linewidth_mask, self.pe.N_X-linewidth_mask,
+                                fill=False, facecolor='none', edgecolor = 'black', alpha = 0.5, ls='dashed', lw=linewidth_mask)
+                ax.add_patch(circ)
             i_orientation = np.mod(i_sf_0, 4)
             if i_orientation==0:
                 xmin += size
