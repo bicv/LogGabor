@@ -29,8 +29,7 @@ class LogGabor(Image):
         Image.init(self)
 
         self.n_levels = int(np.log(np.max((self.pe.N_X, self.pe.N_Y)))/np.log(self.pe.base_levels))
-        self.sf_0 = .5 * (1 - 1/self.n_levels) / np.logspace(0, self.n_levels, self.n_levels, base=self.pe.base_levels)
-        self.sf_0 = self.sf_0[::-1]
+        self.sf_0 = .5 * (1 - 1/self.n_levels) / np.logspace(0, self.n_levels-1, self.n_levels, base=self.pe.base_levels, endpoint=False)
         self.theta = np.linspace(-np.pi/2, np.pi/2, self.pe.n_theta+1)[1:]
         self.oc = (self.pe.N_X * self.pe.N_Y * self.pe.n_theta * self.n_levels) #(1 - self.pe.base_levels**-2)**-1)
         if self.pe.use_cache is True:
@@ -38,12 +37,6 @@ class LogGabor(Image):
         # self.envelope = np.zeros((self.pe.N_X, self.pe.N_Y))
 
     def linear_pyramid(self, image):
-        # theta_bin = (self.theta + np.hstack((self.theta[-1]-np.pi, self.theta[:-1]))) /2
-        #self.theta[:-1] + self.theta[1:]) / 2. # middles
-        # binedges_theta = np.hstack((theta_bin, theta_bin[0]+np.pi))
-        # width = binedges_theta[1:] - binedges_theta[:-1]
-        # B_thetas = self.pe.B_theta * width / (np.pi/self.pe.n_theta)
-        # print(B_thetas)
 
         C = np.empty((self.pe.N_X, self.pe.N_Y, self.pe.n_theta, self.n_levels), dtype=np.complex)
         for i_sf_0, sf_0 in enumerate(self.sf_0):
@@ -61,13 +54,13 @@ class LogGabor(Image):
         """
         import matplotlib.pyplot as plt
 
-        phi = (np.sqrt(5) +1.)/2. # golden ratio
+        phi = (np.sqrt(5)+1.)/2. # golden ratio
         opts= {'vmin':0., 'vmax':1., 'interpolation':'nearest', 'origin':'upper'}
         fig_width = 13
         fig = plt.figure(figsize=(fig_width, fig_width/phi), frameon=True)
         xmin, ymin, size = 0, 0, 1.
         axs = []
-        for i_sf_0, sf_0_ in enumerate(self.sf_0):
+        for i_sf_0 in range(len(self.sf_0)):
             ax = fig.add_axes((xmin/phi, ymin, size/phi, size), axisbg='w')
             ax.axis(c='w', lw=1)
             plt.setp(ax, xticks=[], yticks=[])
@@ -79,7 +72,6 @@ class LogGabor(Image):
 
             im_RGB /= im_RGB.max()
             ax.imshow(1-im_RGB, **opts)
-            #a.grid(False)
             ax.grid(b=False, which="both")
             i_orientation = np.mod(i_sf_0, 4)
             if i_orientation==0:
@@ -163,7 +155,7 @@ class LogGabor(Image):
         env = np.multiply(self.band(sf_0, B_sf), self.orientation(theta, B_theta))
         if not(u==0.) and not(v==0.): # bypass translation whenever none is needed
               env = env.astype(np.complex128) * self.trans(u*1., v*1.)
-        if preprocess : env *= self.f_mask
+        if preprocess : env *= self.f_mask # retina processing
         # normalizing energy:
         env /= np.sqrt((np.abs(env)**2).mean())
         # in the case a a single bump (see ``orientation``), we should compensate the fact that the distribution gets complex:
