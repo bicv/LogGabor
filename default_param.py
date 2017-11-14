@@ -14,7 +14,7 @@
 'mask_exponent': 3., #sharpness of the mask
 # whitening parameters:
 'do_whitening'  : True, # = self.pe.do_whitening
-'white_name_database' : 'serre07_distractors',
+'white_name_database' : 'kodakdb',
 'white_n_learning' : 0,
 'white_N' : .07,
 'white_N_0' : .0, # olshausen = 0.
