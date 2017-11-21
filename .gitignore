@@ -55,3 +55,15 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+
+.idea/inspectionProfiles/profiles_settings.xml
+
+.idea/LogGabor.iml
+
+.idea/misc.xml
+
+.idea/modules.xml
+
+.idea/vcs.xml
+
+.idea/workspace.xml
