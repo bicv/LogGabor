@@ -9,9 +9,6 @@ See http://pythonhosted.org/LogGabor
 __author__ = "(c) Laurent Perrinet INT - CNRS"
 import numpy as np
 from SLIP import Image
-from numpy.fft import fft2, fftshift, ifft2, ifftshift
-import scipy.optimize as opt
-
 
 class LogGabor(Image):
     """
@@ -176,9 +173,11 @@ class LogGabor(Image):
         fig, a1, a2 = self.show_FT(FT_lg * np.exp(-1j*phase))
         return fig, a1, a2
 
-    ##ADDED FUNTIONS
+    ## FITTING FUNTIONS
 
     def invert(self, FT_image, full=False):
+        from numpy.fft import fft2, fftshift, ifft2, ifftshift
+
         if full:
             return ifft2(ifftshift(FT_image))
         else:
@@ -193,31 +192,20 @@ class LogGabor(Image):
         ind = np.absolute(C).argmax()
         return np.unravel_index(ind, C.shape)
 
-
-
-    def twoD_Gaussian(self,xy ,x_pos, y_pos, theta, sf_0, phase, B_sf):
-
-        FT_lg = self.loggabor(x_pos, y_pos, sf_0=np.absolute(sf_0), B_sf=B_sf, theta=theta, B_theta=self.pe.B_theta)
-        FT_lg = FT_lg * np.exp(1j * phase)
-
-        return self.invert(FT_lg).ravel()
-
-    def twoD_Gaussian2(self, x_in, B_theta):
-
-        FT_lg = self.loggabor(x_in[0], x_in[1], sf_0=x_in[3], B_sf=x_in[5], theta=x_in[2], B_theta=B_theta)
-        FT_lg = FT_lg * np.exp(1j * x_in[4])
-
-        return self.invert(FT_lg).ravel()
-
-    def twoD_Gaussian3(self, x_pos, y_pos, theta, sf_0, phase, B_sf, B_theta):
-
+    def LG_instance(self, xy, x_pos, y_pos, theta, sf_0, phase, B_sf, B_theta):
         FT_lg = self.loggabor(x_pos, y_pos, sf_0=np.absolute(sf_0), B_sf=B_sf, theta=theta, B_theta=B_theta)
         FT_lg = FT_lg * np.exp(1j * phase)
-
         return self.invert(FT_lg).ravel()
 
-    def LogGaborFit(self ,patch, N_X, N_Y):
+    def LG_instance2(self, x_in, B_theta):
+        x_pos, y_pos, theta, sf_0, phase, B_sf = x_in[0], x_in[1], x_in[2], x_in[3], x_in[4], x_in[5]
+        return self.LG_instance(self, xy, x_pos, y_pos, theta, sf_0, phase, B_sf, B_theta=B_theta)
 
+    def LG_instance3(self, x_pos, y_pos, theta, sf_0, phase, B_sf, B_theta):
+        return self.LG_instance(self, xy, x_pos, y_pos, theta, sf_0, phase, B_sf=B_sf, B_theta=B_theta)
+
+    def LogGaborFit(self, patch, N_X, N_Y):
+        import scipy.optimize as opt
         self.set_size((N_X, N_Y))
         self.pe.N_X = N_X
         self.pe.N_Y = N_Y
@@ -226,14 +214,13 @@ class LogGabor(Image):
         y = np.arange(self.pe.N_Y)
         xy = np.meshgrid(x, y)
 
-
         C = self.linear_pyramid(np.reshape(patch, (N_X, N_Y)))
         idx = self.argmax(C)
-        #initial guess from Matching Pursuit
+        #initial guess is the one corresponding to the Maximum Likelihood Estimate over the linear pyramid
         initial_guess = [idx[0], idx[1], self.theta[idx[2]], self.sf_0[idx[3]], 0, self.pe.B_sf]
         #Adjusting parameters
-        popt, pcov = opt.curve_fit(self.twoD_Gaussian, xy, patch.ravel(), p0=initial_guess)
-        popt2, pcov2 = opt.curve_fit(self.twoD_Gaussian2, popt, patch.ravel(), p0=(self.pe.B_theta))
+        popt, pcov = opt.curve_fit(self.LG_instance, xy, patch.ravel(), p0=initial_guess)
+        popt2, pcov2 = opt.curve_fit(self.LG_instance2, popt, patch.ravel(), p0=(self.pe.B_theta))
 
         # define bigger patch to avoid artifacts
 
@@ -248,11 +235,9 @@ class LogGabor(Image):
 
         popt3 = np.concatenate((popt, popt2))
 
-        patch_fit = np.reshape(self.twoD_Gaussian3(*popt3), (N_X + N_X // 2, N_Y + N_Y // 2))
+        patch_fit = np.reshape(self.LG_instance3(*popt3), (N_X + N_X // 2, N_Y + N_Y // 2))
 
-        patch_fit = patch_fit[np.arange(N_X // 4, N_X + N_X // 4), :]
-
-        patch_fit = patch_fit[:, np.arange(N_Y // 4, N_X + N_Y // 4)]
+        patch_fit = patch_fit[np.arange(N_X // 4, N_X + N_X // 4), np.arange(N_Y // 4, N_Y + N_Y // 4)]
 
         popt3[0] = popt3[0] - N_X / 4
         popt3[1] = popt3[1] - N_Y / 4
@@ -261,7 +246,7 @@ class LogGabor(Image):
 
         #return np.zeros((1,int( N_X * N_Y))), np.zeros((1, 7))
 
-    def LogGaborFit_dictionary(self, dictx, verbose = False, get_unfitted = False, whoswho = False):
+    def LogGaborFit_dictionary(self, dictx, verbose=False, get_unfitted=False, whoswho=False):
 
         if whoswho:
             names=[]
@@ -304,8 +289,6 @@ class LogGabor(Image):
             else:
                 return dictx_fit, dictx_fit_param
 
-
-    ##END ADDED FUNTIONS
 
 def _test():
     import doctest
