@@ -8,8 +8,10 @@ See http://pythonhosted.org/LogGabor
 """
 __author__ = "(c) Laurent Perrinet INT - CNRS"
 import numpy as np
-
 from SLIP import Image
+from numpy.fft import fft2, fftshift, ifft2, ifftshift
+import scipy.optimize as opt
+
 
 class LogGabor(Image):
     """
@@ -173,6 +175,137 @@ class LogGabor(Image):
         FT_lg = self.loggabor(u, v, sf_0, B_sf, theta, B_theta)
         fig, a1, a2 = self.show_FT(FT_lg * np.exp(-1j*phase))
         return fig, a1, a2
+
+    ##ADDED FUNTIONS
+
+    def invert(self, FT_image, full=False):
+        if full:
+            return ifft2(ifftshift(FT_image))
+        else:
+            return ifft2(ifftshift(FT_image)).real
+
+    def argmax(self, C):
+        """
+        Returns the ArgMax from C by returning the
+        (x_pos, y_pos, theta, scale)  tuple
+
+        """
+        ind = np.absolute(C).argmax()
+        return np.unravel_index(ind, C.shape)
+
+
+
+    def twoD_Gaussian(self,xy ,x_pos, y_pos, theta, sf_0, phase, B_sf):
+
+        FT_lg = self.loggabor(x_pos, y_pos, sf_0=np.absolute(sf_0), B_sf=B_sf, theta=theta, B_theta=self.pe.B_theta)
+        FT_lg = FT_lg * np.exp(1j * phase)
+
+        return self.invert(FT_lg).ravel()
+
+    def twoD_Gaussian2(self, x_in, B_theta):
+
+        FT_lg = self.loggabor(x_in[0], x_in[1], sf_0=x_in[3], B_sf=x_in[5], theta=x_in[2], B_theta=B_theta)
+        FT_lg = FT_lg * np.exp(1j * x_in[4])
+
+        return self.invert(FT_lg).ravel()
+
+    def twoD_Gaussian3(self, x_pos, y_pos, theta, sf_0, phase, B_sf, B_theta):
+
+        FT_lg = self.loggabor(x_pos, y_pos, sf_0=np.absolute(sf_0), B_sf=B_sf, theta=theta, B_theta=B_theta)
+        FT_lg = FT_lg * np.exp(1j * phase)
+
+        return self.invert(FT_lg).ravel()
+
+    def LogGaborFit(self ,patch, N_X, N_Y):
+
+        self.set_size((N_X, N_Y))
+        self.pe.N_X = N_X
+        self.pe.N_Y = N_Y
+
+        x = np.arange(self.pe.N_X)
+        y = np.arange(self.pe.N_Y)
+        xy = np.meshgrid(x, y)
+
+
+        C = self.linear_pyramid(np.reshape(patch, (N_X, N_Y)))
+        idx = self.argmax(C)
+        #initial guess from Matching Pursuit
+        initial_guess = [idx[0], idx[1], self.theta[idx[2]], self.sf_0[idx[3]], 0, self.pe.B_sf]
+        #Adjusting parameters
+        popt, pcov = opt.curve_fit(self.twoD_Gaussian, xy, patch.ravel(), p0=initial_guess)
+        popt2, pcov2 = opt.curve_fit(self.twoD_Gaussian2, popt, patch.ravel(), p0=(self.pe.B_theta))
+
+        # define bigger patch to avoid artifacts
+
+        self.pe.N_X = N_X + N_X // 2
+        self.pe.N_Y = N_Y + N_Y // 2
+        self.set_size((int(N_X + N_X / 2), int(N_Y + N_Y / 2)))
+        x = np.arange(self.pe.N_X)
+        y = np.arange(self.pe.N_Y)
+        xy2 = np.meshgrid(x, y)
+        popt[0] = popt[0] + N_X / 4
+        popt[1] = popt[1] + N_Y / 4
+
+        popt3 = np.concatenate((popt, popt2))
+
+        patch_fit = np.reshape(self.twoD_Gaussian3(*popt3), (N_X + N_X // 2, N_Y + N_Y // 2))
+
+        patch_fit = patch_fit[np.arange(N_X // 4, N_X + N_X // 4), :]
+
+        patch_fit = patch_fit[:, np.arange(N_Y // 4, N_X + N_Y // 4)]
+
+        popt3[0] = popt3[0] - N_X / 4
+        popt3[1] = popt3[1] - N_Y / 4
+
+        return patch_fit.ravel(), popt3
+
+        #return np.zeros((1,int( N_X * N_Y))), np.zeros((1, 7))
+
+    def LogGaborFit_dictionary(self, dictx, verbose = False, get_unfitted = False, whoswho = False):
+
+        if whoswho:
+            names=[]
+            names.append('dictx_fit_param[:,0] = x0')
+            names.append('dictx_fit_param[:,1] = y0')
+            names.append('dictx_fit_param[:,2] = theta')
+            names.append('dictx_fit_param[:,3] = sf_0')
+            names.append('dictx_fit_param[:,4] = Phase')
+            names.append('dictx_fit_param[:,5] = B_sf')
+            names.append('dictx_fit_param[:,6] = B_theta')
+
+        dictx_fit = np.zeros_like(dictx)
+        dictx_fit_param = np.zeros((dictx_fit.shape[0], 7))
+        idx_unfitted = []
+
+        for i in range(dictx.shape[0]):
+
+            if verbose:
+                print("Fitting patch % 3i /  % 3i"
+                    %(i + 1, dictx.shape[0]))
+
+            try:
+                dictx_fit[i, :], dictx_fit_param[i, :] = self.LogGaborFit(dictx[i, :], int(np.sqrt(dictx.shape[1])),
+                                                                          int(np.sqrt(dictx.shape[1])))
+            except:
+                if verbose:
+                    print("Couldn't fit patch number % 3i" %i)
+                dictx_fit[i, :] = np.zeros((1, dictx.shape[1]))
+                dictx_fit_param[i, :] = np.zeros((1, 7))
+                idx_unfitted.append(i)
+
+        if get_unfitted:
+            if whoswho:
+                return dictx_fit, dictx_fit_param, idx_unfitted, names
+            else:
+                return dictx_fit, dictx_fit_param, idx_unfitted
+        else:
+            if whoswho:
+                return dictx_fit, dictx_fit_param, names
+            else:
+                return dictx_fit, dictx_fit_param
+
+
+    ##END ADDED FUNTIONS
 
 def _test():
     import doctest
