@@ -45,6 +45,19 @@ class LogGabor(Image):
                 C[:, :, i_theta, i_sf_0] = self.FTfilter(image, FT_lg, full=True)
         return C
 
+    def argmax(self, C):
+        """
+        Returns the ArgMax from C by returning the
+        (x_pos, y_pos, theta, scale)  tuple
+
+        >>> C = np.random.randn(10, 10, 5, 4)
+        >>> x_pos, y_pos, theta, scale = mp.argmax(C)
+        >>> C[x_pos][y_pos][theta][scale] = C.max()
+
+        """
+        ind = np.absolute(C).argmax()
+        return np.unravel_index(ind, C.shape)
+
     def golden_pyramid(self, z, mask=False):
         """
         The Golden Laplacian Pyramid.
@@ -151,16 +164,17 @@ class LogGabor(Image):
         return enveloppe_orientation
 
     ## MID LEVEL OPERATIONS
-    def loggabor(self, u, v, sf_0, B_sf, theta, B_theta, preprocess=True):
+    def loggabor(self, x_pos, y_pos, sf_0, B_sf, theta, B_theta, preprocess=True):
         """
+        Returns the envelope of a LogGabor
 
         Note that the convention for coordinates follows that of matrices: the origin is at the top left of the image, and coordinates are first the rows (vertical axis, going down) then the columns (horizontal axis, going right).
 
         """
 
         env = np.multiply(self.band(sf_0, B_sf), self.orientation(theta, B_theta))
-        if not(u==0.) and not(v==0.): # bypass translation whenever none is needed
-              env = env.astype(np.complex128) * self.trans(u*1., v*1.)
+        if not(x_pos==0.) and not(y_pos==0.): # bypass translation whenever none is needed
+              env = env.astype(np.complex128) * self.trans(x_pos*1., y_pos*1.)
         if preprocess : env *= self.f_mask # retina processing
         # normalizing energy:
         env /= np.sqrt((np.abs(env)**2).mean())
@@ -168,42 +182,26 @@ class LogGabor(Image):
         env *= np.sqrt(2.)
         return env
 
+    def loggabor_image(self, x_pos, y_pos, theta, sf_0, phase, B_sf, B_theta):
+        FT_lg = self.loggabor(x_pos, y_pos, sf_0=sf_0, B_sf=B_sf, theta=theta, B_theta=B_theta)
+        FT_lg = FT_lg * np.exp(1j * phase)
+        return self.invert(FT_lg, full=False)
+
     def show_loggabor(self, u, v, sf_0, B_sf, theta, B_theta, title='', phase=0.):
         FT_lg = self.loggabor(u, v, sf_0, B_sf, theta, B_theta)
         fig, a1, a2 = self.show_FT(FT_lg * np.exp(-1j*phase))
         return fig, a1, a2
 
-    ## FITTING FUNTIONS
 
-    def invert(self, FT_image, full=False):
-        from numpy.fft import fft2, fftshift, ifft2, ifftshift
+class LogGaborFit(LogGabor):
+    """
+    Defines a  framework to fit a LogGabor.
 
-        if full:
-            return ifft2(ifftshift(FT_image))
-        else:
-            return ifft2(ifftshift(FT_image)).real
-
-    def argmax(self, C):
-        """
-        Returns the ArgMax from C by returning the
-        (x_pos, y_pos, theta, scale)  tuple
-
-        """
-        ind = np.absolute(C).argmax()
-        return np.unravel_index(ind, C.shape)
-
-    def LG_instance(self, x_pos, y_pos, theta, sf_0, phase, B_sf, B_theta):
-        FT_lg = self.loggabor(x_pos, y_pos, sf_0=np.absolute(sf_0), B_sf=B_sf, theta=theta, B_theta=B_theta)
-        FT_lg = FT_lg * np.exp(1j * phase)
-        return self.invert(FT_lg)#.ravel()
-    # #
-    # def LG_instance2(self, x_in, B_theta):
-    #     x_pos, y_pos, theta, sf_0, phase, B_sf = x_in[0], x_in[1], x_in[2], x_in[3], x_in[4], x_in[5]
-    #     return self.LG_instance(self, x_pos, y_pos, theta, sf_0, phase, B_sf, B_theta=B_theta)
-    #
-    # def LG_instance3(self, x_pos, y_pos, theta, sf_0, phase, B_sf, B_theta):
-    #     return self.LG_instance(self, xy, x_pos, y_pos, theta, sf_0, phase, B_sf=B_sf, B_theta=B_theta)
-
+    """
+    def __init__(self, pe):
+        LogGabor.__init__(self, pe)
+        self.init_logging(name='LogGaborFit')
+        self.init()
 
     def LogGaborFit(self, patch):
         N_X, N_Y = patch.shape
@@ -214,18 +212,11 @@ class LogGabor(Image):
         C = self.linear_pyramid(patch) # np.reshape(patch, (N_X, N_Y)))
         idx = self.argmax(C)
         #initial guess is the one corresponding to the Maximum Likelihood Estimate over the linear pyramid
-        initial_guess = [idx[0], idx[1], self.theta[idx[2]], self.sf_0[idx[3]], np.angle(C[idx]), self.pe.B_sf, self.pe.B_theta]
 
         # define bigger patch to avoid artifacts
         self.pe.N_X = N_X + N_X // 2
         self.pe.N_Y = N_Y + N_Y // 2
         self.set_size((self.pe.N_X, self.pe.N_Y))
-        # x = np.arange(self.pe.N_X)
-        # y = np.arange(self.pe.N_Y)
-        #xy2 = np.meshgrid(x, y)
-        #popt[0] = popt[0] + N_X / 4
-        #popt[1] = popt[1] + N_Y / 4
-
 
         from lmfit import Parameters, minimize, fit_report
         def residual(pars, data):#=None, eps=None):
@@ -240,51 +231,41 @@ class LogGabor(Image):
             B_sf = parvals['B_sf']
             phase = parvals['phase'] #% (2*np.pi)
 
-            model = self.LG_instance(x_pos, x_pos, theta, sf_0, phase, B_sf, B_theta)
-            # FT_lg = self.loggabor(x_pos, y_pos, sf_0=np.absolute(sf_0), B_sf=B_sf, theta=theta, B_theta=B_theta)
-            # FT_lg = FT_lg * np.exp(1j * phase)
-            # model = self.invert(FT_lg)#.ravel()
+            model = self.loggabor_image(x_pos, y_pos, theta, sf_0, phase, B_sf, B_theta)
 
             N_X, N_Y = data.shape
             model = model[np.arange(N_X // 4, N_X + N_X // 4), :]
             model = model[:, np.arange(N_Y // 4, N_Y + N_Y // 4)]
+            model /= np.sum(model**2)
+            data /= np.sum(data**2)
             return (model - data).ravel()
 
-            # if data is None:
-            #     return model
-            # if eps is None:
-            #     return (model - data)
-            # return (model - data)/eps
-
         fit_params = Parameters()
-        fit_params.add('x_pos', value=idx[0] + N_X//4, min=N_X//4, max=3*N_X//4)
-        fit_params.add('y_pos', value=idx[1] + N_Y//4, min=N_Y//4, max=3*N_Y//4)
+        fit_params.add('x_pos', value=idx[0] + N_X//4, min=0, max=N_X)
+        fit_params.add('y_pos', value=idx[1] + N_Y//4, min=0, max=N_Y)
         fit_params.add('theta', value=self.theta[idx[2]], min=-np.pi/2, max=np.pi/2)
-        fit_params.add('sf_0', value=self.sf_0[idx[3]], min=0.00001)
+        fit_params.add('sf_0', value=self.sf_0[idx[3]], min=0.001)
         fit_params.add('phase', value=np.angle(C[idx]), min=0, max=2*np.pi)
-        fit_params.add('B_theta', value=self.pe.B_sf, min=0.00001)
-        fit_params.add('B_sf', value=self.pe.B_theta, min=0.00001, vary=False)
+        fit_params.add('B_theta', value=self.pe.B_sf, min=0.001, vary=False)
+        fit_params.add('B_sf', value=self.pe.B_theta, min=0.001)
 
-        #print(fit_params)
+        mi1 = minimize(residual, fit_params, kws={'data':patch}, nan_policy='omit')
 
-        out = minimize(residual, fit_params, kws={'data':patch})
+        mi1.params['B_theta'].vary = True
+        mi1.params['B_sf'].vary = False
 
-        #print(fit_report(out))
+        mi2 = minimize(residual, mi1.params, kws={'data':patch}, method='Nelder', nan_policy='omit')
+        # print(mi1.params['B_sf'].value, mi2.params['B_sf'].value)
+        out = minimize(residual, mi2.params, kws={'data':patch}, nan_policy='omit')
 
-        #popt3 = np.concatenate((popt, popt2))
-        # return out
-
-        patch_fit = self.LG_instance(**out.params)
+        patch_fit = self.loggabor_image(**out.params)
 
         patch_fit = patch_fit[np.arange(N_X // 4, N_X + N_X // 4), :]
         patch_fit = patch_fit[:, np.arange(N_Y // 4, N_Y + N_Y // 4)]
 
-        # popt3[0] = popt3[0] - N_X / 4
-        # popt3[1] = popt3[1] - N_Y / 4
 
         return patch_fit.ravel(), out.params
 
-        #return np.zeros((1,int( N_X * N_Y))), np.zeros((1, 7))
 
     def LogGaborFit_dictionary(self, dictx, verbose=False, get_unfitted=False, whoswho=False):
 

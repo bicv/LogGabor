@@ -5,7 +5,7 @@ __author__ = "Laurent Perrinet INT - CNRS"
 __version__ = '2016-12-05'
 __licence__ = 'GPLv2'
 from SLIP import imread
-from .LogGabor import LogGabor
+from .LogGabor import LogGabor, LogGaborFit
 
 def init_pylab():
     ############################  FIGURES   ########################################
