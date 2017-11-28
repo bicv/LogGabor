@@ -192,57 +192,97 @@ class LogGabor(Image):
         ind = np.absolute(C).argmax()
         return np.unravel_index(ind, C.shape)
 
-    def LG_instance(self, xy, x_pos, y_pos, theta, sf_0, phase, B_sf, B_theta):
+    def LG_instance(self, x_pos, y_pos, theta, sf_0, phase, B_sf, B_theta):
         FT_lg = self.loggabor(x_pos, y_pos, sf_0=np.absolute(sf_0), B_sf=B_sf, theta=theta, B_theta=B_theta)
         FT_lg = FT_lg * np.exp(1j * phase)
-        return self.invert(FT_lg).ravel()
+        return self.invert(FT_lg)#.ravel()
+    # #
+    # def LG_instance2(self, x_in, B_theta):
+    #     x_pos, y_pos, theta, sf_0, phase, B_sf = x_in[0], x_in[1], x_in[2], x_in[3], x_in[4], x_in[5]
+    #     return self.LG_instance(self, x_pos, y_pos, theta, sf_0, phase, B_sf, B_theta=B_theta)
+    #
+    # def LG_instance3(self, x_pos, y_pos, theta, sf_0, phase, B_sf, B_theta):
+    #     return self.LG_instance(self, xy, x_pos, y_pos, theta, sf_0, phase, B_sf=B_sf, B_theta=B_theta)
 
-    def LG_instance2(self, x_in, B_theta):
-        x_pos, y_pos, theta, sf_0, phase, B_sf = x_in[0], x_in[1], x_in[2], x_in[3], x_in[4], x_in[5]
-        return self.LG_instance(self, xy, x_pos, y_pos, theta, sf_0, phase, B_sf, B_theta=B_theta)
 
-    def LG_instance3(self, x_pos, y_pos, theta, sf_0, phase, B_sf, B_theta):
-        return self.LG_instance(self, xy, x_pos, y_pos, theta, sf_0, phase, B_sf=B_sf, B_theta=B_theta)
-
-    def LogGaborFit(self, patch, N_X, N_Y):
-        import scipy.optimize as opt
+    def LogGaborFit(self, patch):
+        N_X, N_Y = patch.shape
+        # import scipy.optimize as opt
         self.set_size((N_X, N_Y))
         self.pe.N_X = N_X
         self.pe.N_Y = N_Y
-
-        x = np.arange(self.pe.N_X)
-        y = np.arange(self.pe.N_Y)
-        xy = np.meshgrid(x, y)
-
-        C = self.linear_pyramid(np.reshape(patch, (N_X, N_Y)))
+        C = self.linear_pyramid(patch) # np.reshape(patch, (N_X, N_Y)))
         idx = self.argmax(C)
         #initial guess is the one corresponding to the Maximum Likelihood Estimate over the linear pyramid
-        initial_guess = [idx[0], idx[1], self.theta[idx[2]], self.sf_0[idx[3]], 0, self.pe.B_sf]
-        #Adjusting parameters
-        popt, pcov = opt.curve_fit(self.LG_instance, xy, patch.ravel(), p0=initial_guess)
-        popt2, pcov2 = opt.curve_fit(self.LG_instance2, popt, patch.ravel(), p0=(self.pe.B_theta))
+        initial_guess = [idx[0], idx[1], self.theta[idx[2]], self.sf_0[idx[3]], np.angle(C[idx]), self.pe.B_sf, self.pe.B_theta]
 
         # define bigger patch to avoid artifacts
-
         self.pe.N_X = N_X + N_X // 2
         self.pe.N_Y = N_Y + N_Y // 2
-        self.set_size((int(N_X + N_X / 2), int(N_Y + N_Y / 2)))
-        x = np.arange(self.pe.N_X)
-        y = np.arange(self.pe.N_Y)
-        xy2 = np.meshgrid(x, y)
-        popt[0] = popt[0] + N_X / 4
-        popt[1] = popt[1] + N_Y / 4
+        self.set_size((self.pe.N_X, self.pe.N_Y))
+        # x = np.arange(self.pe.N_X)
+        # y = np.arange(self.pe.N_Y)
+        #xy2 = np.meshgrid(x, y)
+        #popt[0] = popt[0] + N_X / 4
+        #popt[1] = popt[1] + N_Y / 4
 
-        popt3 = np.concatenate((popt, popt2))
 
-        patch_fit = np.reshape(self.LG_instance3(*popt3), (N_X + N_X // 2, N_Y + N_Y // 2))
+        from lmfit import Parameters, minimize, fit_report
+        def residual(pars, data):#=None, eps=None):
+            # unpack parameters:
+            #  extract .value attribute for each parameter
+            parvals = pars.valuesdict()
+            x_pos = parvals['x_pos']
+            y_pos = parvals['y_pos']
+            theta = parvals['theta'] #% np.pi
+            B_theta = parvals['B_theta']
+            sf_0 = np.abs(parvals['sf_0'])
+            B_sf = parvals['B_sf']
+            phase = parvals['phase'] #% (2*np.pi)
 
-        patch_fit = patch_fit[np.arange(N_X // 4, N_X + N_X // 4), np.arange(N_Y // 4, N_Y + N_Y // 4)]
+            model = self.LG_instance(x_pos, x_pos, theta, sf_0, phase, B_sf, B_theta)
+            # FT_lg = self.loggabor(x_pos, y_pos, sf_0=np.absolute(sf_0), B_sf=B_sf, theta=theta, B_theta=B_theta)
+            # FT_lg = FT_lg * np.exp(1j * phase)
+            # model = self.invert(FT_lg)#.ravel()
 
-        popt3[0] = popt3[0] - N_X / 4
-        popt3[1] = popt3[1] - N_Y / 4
+            N_X, N_Y = data.shape
+            model = model[np.arange(N_X // 4, N_X + N_X // 4), :]
+            model = model[:, np.arange(N_Y // 4, N_Y + N_Y // 4)]
+            return (model - data).ravel()
 
-        return patch_fit.ravel(), popt3
+            # if data is None:
+            #     return model
+            # if eps is None:
+            #     return (model - data)
+            # return (model - data)/eps
+
+        fit_params = Parameters()
+        fit_params.add('x_pos', value=idx[0] + N_X//4, min=N_X//4, max=3*N_X//4)
+        fit_params.add('y_pos', value=idx[1] + N_Y//4, min=N_Y//4, max=3*N_Y//4)
+        fit_params.add('theta', value=self.theta[idx[2]], min=-np.pi/2, max=np.pi/2)
+        fit_params.add('sf_0', value=self.sf_0[idx[3]], min=0.00001)
+        fit_params.add('phase', value=np.angle(C[idx]), min=0, max=2*np.pi)
+        fit_params.add('B_theta', value=self.pe.B_sf, min=0.00001)
+        fit_params.add('B_sf', value=self.pe.B_theta, min=0.00001, vary=False)
+
+        #print(fit_params)
+
+        out = minimize(residual, fit_params, kws={'data':patch})
+
+        #print(fit_report(out))
+
+        #popt3 = np.concatenate((popt, popt2))
+        # return out
+
+        patch_fit = self.LG_instance(**out.params)
+
+        patch_fit = patch_fit[np.arange(N_X // 4, N_X + N_X // 4), :]
+        patch_fit = patch_fit[:, np.arange(N_Y // 4, N_Y + N_Y // 4)]
+
+        # popt3[0] = popt3[0] - N_X / 4
+        # popt3[1] = popt3[1] - N_Y / 4
+
+        return patch_fit.ravel(), out.params
 
         #return np.zeros((1,int( N_X * N_Y))), np.zeros((1, 7))
 
@@ -265,13 +305,17 @@ class LogGabor(Image):
         for i in range(dictx.shape[0]):
 
             if verbose:
-                print("Fitting patch % 3i /  % 3i"
-                    %(i + 1, dictx.shape[0]))
+                print("Fitting patch % 3i /  % 3i" %(i + 1, dictx.shape[0]))
 
             try:
-                dictx_fit[i, :], dictx_fit_param[i, :] = self.LogGaborFit(dictx[i, :], int(np.sqrt(dictx.shape[1])),
-                                                                          int(np.sqrt(dictx.shape[1])))
-            except:
+                N_X, N_Y = int(np.sqrt(dictx.shape[1])), int(np.sqrt(dictx.shape[1]))
+                dict_ = np.reshape(dictx[i, :], (N_X, N_Y))
+                #print(dictx_fit[i, :].shape)#, dictx_fit_param[i, :].shape, self.LogGaborFit(dict_))
+                patch_fit, out_params = self.LogGaborFit(dict_)
+                dictx_fit[i, :] = patch_fit.ravel()
+                dictx_fit_param[i, :] = np.array([out_params[key].value for key in list(out_params)])
+            except ValueError:
+                print(out_params)
                 if verbose:
                     print("Couldn't fit patch number % 3i" %i)
                 dictx_fit[i, :] = np.zeros((1, dictx.shape[1]))
