@@ -204,21 +204,25 @@ class LogGaborFit(LogGabor):
         self.init()
 
     def LogGaborFit(self, patch):
+        from lmfit import Parameters, minimize, fit_report
         N_X, N_Y = patch.shape
-        # import scipy.optimize as opt
+
+        #initial guess is the one corresponding to the Maximum Likelihood Estimate over the linear pyramid
         self.set_size((N_X, N_Y))
         self.pe.N_X = N_X
         self.pe.N_Y = N_Y
         C = self.linear_pyramid(patch) # np.reshape(patch, (N_X, N_Y)))
         idx = self.argmax(C)
-        #initial guess is the one corresponding to the Maximum Likelihood Estimate over the linear pyramid
+        fit_params = Parameters()
+        fit_params.add('x_pos', value=idx[0], min=0, max=N_X)
+        fit_params.add('y_pos', value=idx[1], min=0, max=N_Y)
+        fit_params.add('theta', value=self.theta[idx[2]], min=-np.pi/2, max=np.pi/2)
+        fit_params.add('sf_0', value=self.sf_0[idx[3]], min=0.001)
+        fit_params.add('phase', value=np.angle(C[idx]), min=0, max=2*np.pi)
+        fit_params.add('B_theta', value=self.pe.B_sf, min=0.001, vary=False)
+        fit_params.add('B_sf', value=self.pe.B_theta, min=0.001)
 
-        # define bigger patch to avoid artifacts
-        self.pe.N_X = N_X + N_X // 2
-        self.pe.N_Y = N_Y + N_Y // 2
-        self.set_size((self.pe.N_X, self.pe.N_Y))
 
-        from lmfit import Parameters, minimize, fit_report
         def residual(pars, data):#=None, eps=None):
             # unpack parameters:
             #  extract .value attribute for each parameter
@@ -231,23 +235,14 @@ class LogGaborFit(LogGabor):
             B_sf = parvals['B_sf']
             phase = parvals['phase'] #% (2*np.pi)
 
-            model = self.loggabor_image(x_pos, y_pos, theta, sf_0, phase, B_sf, B_theta)
-
             N_X, N_Y = data.shape
-            model = model[np.arange(N_X // 4, N_X + N_X // 4), :]
-            model = model[:, np.arange(N_Y // 4, N_Y + N_Y // 4)]
+            # define bigger patch to avoid artifacts
+            self.set_size((N_X + N_X // 2, N_Y + N_Y // 2))
+            model = self.loggabor_image(x_pos, y_pos, theta, sf_0, phase, B_sf, B_theta)
+            model = model[:N_X, :N_Y]
             model /= np.sum(model**2)
             data /= np.sum(data**2)
             return (model - data).ravel()
-
-        fit_params = Parameters()
-        fit_params.add('x_pos', value=idx[0] + N_X//4, min=0, max=N_X)
-        fit_params.add('y_pos', value=idx[1] + N_Y//4, min=0, max=N_Y)
-        fit_params.add('theta', value=self.theta[idx[2]], min=-np.pi/2, max=np.pi/2)
-        fit_params.add('sf_0', value=self.sf_0[idx[3]], min=0.001)
-        fit_params.add('phase', value=np.angle(C[idx]), min=0, max=2*np.pi)
-        fit_params.add('B_theta', value=self.pe.B_sf, min=0.001, vary=False)
-        fit_params.add('B_sf', value=self.pe.B_theta, min=0.001)
 
         mi1 = minimize(residual, fit_params, kws={'data':patch}, nan_policy='omit')
 
@@ -256,13 +251,12 @@ class LogGaborFit(LogGabor):
 
         mi2 = minimize(residual, mi1.params, kws={'data':patch}, method='Nelder', nan_policy='omit')
         # print(mi1.params['B_sf'].value, mi2.params['B_sf'].value)
+        mi2.params['B_sf'].vary = True
         out = minimize(residual, mi2.params, kws={'data':patch}, nan_policy='omit')
 
         patch_fit = self.loggabor_image(**out.params)
 
-        patch_fit = patch_fit[np.arange(N_X // 4, N_X + N_X // 4), :]
-        patch_fit = patch_fit[:, np.arange(N_Y // 4, N_Y + N_Y // 4)]
-
+        patch_fit = patch_fit[:N_X, :N_Y]
 
         return patch_fit.ravel(), out.params
 
