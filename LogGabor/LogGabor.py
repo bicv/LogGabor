@@ -222,16 +222,6 @@ class LogGaborFit(LogGabor):
 
         out = minimize(self.residual, fit_params, kws={'data':patch}, nan_policy='omit')
 
-        '''
-        
-        mi1.params['B_theta'].vary = True
-
-        out = minimize(self.residual, mi1.params, kws={'data': patch}, nan_policy='omit')
-        
-        '''
-
-
-
         self.set_size((N_X + N_X // 2, N_Y + N_Y // 2))
 
         patch_fit = self.loggabor_image(**out.params)
@@ -255,6 +245,9 @@ class LogGaborFit(LogGabor):
 
         model = self.loggabor_image(x_pos, y_pos, theta, sf_0, phase, B_sf, B_theta)
 
+        #energy norm
+        model /= np.sqrt(np.sum(model ** 2))
+        data /= np.sqrt(np.sum(data ** 2))
 
         return (model - data).ravel()
 
