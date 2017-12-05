@@ -6,3 +6,4 @@ numpy
 SLIP
 version-information
 vispy
+watermark
