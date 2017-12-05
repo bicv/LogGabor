@@ -7,3 +7,4 @@ SLIP
 version-information
 vispy
 watermark
+lmfit
