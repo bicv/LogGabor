@@ -1,5 +1,6 @@
 NAME = LogGabor
 VERSION=`python3 -c'import LogGabor; print(LogGabor.__version__)'`
+PYTHON = python3
 default: $(NAME).pdf
 
 edit:
@@ -14,10 +15,10 @@ pypi_tags:
 	git push --tags origin master
 
 pypi_push:
-	python setup.py register
+	$(PYTHON) setup.py register
 
 pypi_upload:
-	python setup.py sdist upload
+	$(PYTHON) setup.py sdist upload
 
 pypi_docs:
 	#rm web.zip
