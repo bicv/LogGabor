@@ -1,1 +1,7 @@
+holoviews
+matplotlib
+NeuroTools
+numpy
 SLIP
+version-information
+vispy
