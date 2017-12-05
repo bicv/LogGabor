@@ -1,3 +1,5 @@
+.. image:: https://mybinder.org/badge.svg :target: https://mybinder.org/v2/gh/bicv/LogGabor/master
+
 [![PyPI version](https://badge.fury.io/py/LogGabor.svg)](https://badge.fury.io/py/LogGabor)
 [![Research software impact](http://depsy.org/api/package/pypi/LogGabor/badge.svg)](http://depsy.org/package/python/LogGabor)
 
