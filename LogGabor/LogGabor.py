@@ -73,7 +73,7 @@ class LogGabor(Image):
         xmin, ymin, size = 0, 0, 1.
         axs = []
         for i_sf_0 in range(len(self.sf_0)):
-            ax = fig.add_axes((xmin/phi, ymin, size/phi, size), axisbg='w')
+            ax = fig.add_axes((xmin/phi, ymin, size/phi, size), facecolor='w')
             ax.axis(c='w', lw=1)
             plt.setp(ax, xticks=[], yticks=[])
             im_RGB = np.zeros((self.pe.N_X, self.pe.N_Y, 3))
