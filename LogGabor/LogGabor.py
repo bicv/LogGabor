@@ -73,14 +73,15 @@ class LogGabor(Image):
             fig = plt.figure(figsize=(fig_width, fig_width/phi), frameon=True)
             xmin, ymin, size = 0, 0, 1.
         else:
-            fig = plt.figure(figsize=(fig_width, fig_width*self.n_levels), frameon=True)
+            N_X, N_Y = z.shape[0], z.shape[1]
+            fig = plt.figure(figsize=(fig_width, N_X/N_Y*fig_width*self.n_levels), frameon=True)
 
         axs = []
         for i_sf_0 in range(len(self.sf_0)):
             if spiral:
                 ax = fig.add_axes((xmin/phi, ymin, size/phi, size), facecolor='w')
             else:
-                ax = fig.add_axes((0, i_sf_0/self.n_levels, 1, 1), facecolor='w')
+                ax = fig.add_axes((0, N_X/N_Y*i_sf_0/self.n_levels, 1, N_X/N_Y/self.n_levels), facecolor='w')
             ax.axis(c='w', lw=1)
             plt.setp(ax, xticks=[], yticks=[])
             im_RGB = np.zeros((self.pe.N_X, self.pe.N_Y, 3))
