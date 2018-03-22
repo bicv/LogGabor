@@ -68,21 +68,23 @@ class LogGabor(Image):
 
         opts= {'vmin':0., 'vmax':1., 'interpolation':'nearest', 'origin':'upper'}
 
+        N_X, N_Y = z.shape[0], z.shape[1]
         if spiral:
             phi = (np.sqrt(5)+1.)/2. # golden ratio
-            fig = plt.figure(figsize=(fig_width, fig_width/phi), frameon=True)
+            fig = plt.figure(figsize=(fig_width, N_X/N_Y*fig_width/phi), frameon=True)
             xmin, ymin, size = 0, 0, 1.
         else:
-            N_X, N_Y = z.shape[0], z.shape[1]
             fig = plt.figure(figsize=(fig_width, N_X/N_Y*fig_width*self.n_levels), frameon=True)
 
         axs = []
         for i_sf_0 in range(len(self.sf_0)):
             if spiral:
+                # Add an axes at position rect [left, bottom, width, height] where all quantities are in fractions of figure width and height.
                 ax = fig.add_axes((xmin/phi, ymin, size/phi, size), facecolor='w')
+                #ax = fig.add_axes((N_Y/N_X*xmin/phi, ymin, N_Y/N_X*size/phi, size), facecolor='w')
             else:
-                ax = fig.add_axes((0, N_X/N_Y*i_sf_0/self.n_levels, 1, N_X/N_Y/self.n_levels), facecolor='w')
-            ax.axis(c='w', lw=1)
+                ax = fig.add_axes((0, i_sf_0/self.n_levels, 1, 1/self.n_levels), facecolor='w')
+            ax.axis(c='r', lw=1)
             plt.setp(ax, xticks=[], yticks=[])
             im_RGB = np.zeros((self.pe.N_X, self.pe.N_Y, 3))
             for i_theta, theta_ in enumerate(self.theta):
@@ -92,7 +94,7 @@ class LogGabor(Image):
 
             im_RGB /= im_RGB.max()
             ax.imshow(1-im_RGB, **opts)
-            ax.grid(b=False, which="both")
+            #ax.grid(b=False, which="both")
             if mask:
                 linewidth_mask = 1 #
                 from matplotlib.patches import Ellipse
