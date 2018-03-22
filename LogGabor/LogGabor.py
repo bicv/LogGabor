@@ -79,9 +79,9 @@ class LogGabor(Image):
         axs = []
         for i_sf_0 in range(len(self.sf_0)):
             if spiral:
+                # https://matplotlib.org/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure.add_axes says:
                 # Add an axes at position rect [left, bottom, width, height] where all quantities are in fractions of figure width and height.
                 ax = fig.add_axes((xmin/phi, ymin, size/phi, size), facecolor='w')
-                #ax = fig.add_axes((N_Y/N_X*xmin/phi, ymin, N_Y/N_X*size/phi, size), facecolor='w')
             else:
                 ax = fig.add_axes((0, i_sf_0/self.n_levels, 1, 1/self.n_levels), facecolor='w')
             ax.axis(c='r', lw=1)
