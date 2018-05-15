@@ -28,15 +28,6 @@
 'n_theta' : 24, # number of (unoriented) angles between 0. radians (included) and np.pi radians (excluded)
 'B_sf' : .4, # 1.5 in Geisler
 'B_theta' : 3.14159/18.,
-# EdgeFactory PARAMETERS
-'d_width' : 45., # Geisler 1.23 deg (full image = 45deg)
-'d_min' : .25, # Geisler 1.23 deg (full image = 45deg)
-'d_max' : 2., # Geisler 1.23 deg (full image = 45deg)
-'N_r' : 6, #
-'N_Dtheta' : 24, # equal to n_theta : 24 to avoid artifacts
-'N_phi' : 12, #
-'N_scale' : 5, #
-'loglevel_max': 7,
 # PATHS
 'use_cache' : True,
 'figpath': 'results',
