@@ -193,8 +193,12 @@ class LogGabor(Image):
         env *= np.sqrt(2.)
         return env
 
-    def loggabor_image(self, x_pos, y_pos, theta, sf_0, phase, B_sf, B_theta):
-        FT_lg = self.loggabor(x_pos, y_pos, sf_0=sf_0, B_sf=B_sf, theta=theta, B_theta=B_theta)
+    def loggabor_image(self, x_pos, y_pos, theta, sf_0, phase, B_sf, B_theta, centered=False):
+
+        if centered:
+            FT_lg = self.loggabor( self.pe.N_X//2, self.pe.N_X//2, sf_0=sf_0, B_sf=B_sf, theta=theta, B_theta=B_theta)
+        else:
+            FT_lg = self.loggabor(x_pos, y_pos, sf_0=sf_0, B_sf=B_sf, theta=theta, B_theta=B_theta)
         FT_lg = FT_lg * np.exp(1j * phase)
         return self.invert(FT_lg, full=False)
 
@@ -214,7 +218,7 @@ class LogGaborFit(LogGabor):
         self.init_logging(name='LogGaborFit')
         self.init()
 
-    def LogGaborFit(self, patch):
+    def LogGaborFit(self, patch, centered=False):
         from lmfit import Parameters, minimize, fit_report
         N_X, N_Y = patch.shape
 
@@ -238,12 +242,12 @@ class LogGaborFit(LogGabor):
         out.params['B_theta'].set(vary=True)
         out = minimize(self.residual, params=out.params, kws={'data':patch}, nan_policy='omit', method='Nelder-Mead')
 
-        self.set_size((N_X + N_X // 2, N_Y + N_Y // 2))
+        #self.set_size((N_X + N_X // 2, N_Y + N_Y // 2))
 
-        patch_fit = self.loggabor_image(**out.params)
-        patch_fit = patch_fit[:N_X, :N_Y]
+        patch_fit = self.loggabor_image(**out.params, centered=centered)
+        #patch_fit = patch_fit[:N_X, :N_Y]
 
-        self.set_size((N_X, N_Y))
+        #self.set_size((N_X, N_Y))
 
         return patch_fit.ravel(), out.params
 
@@ -269,7 +273,7 @@ class LogGaborFit(LogGabor):
         return (model - data).ravel()
 
 
-    def LogGaborFit_dictionary(self, dictx, verbose=False, get_unfitted=False, whoswho=False):
+    def LogGaborFit_dictionary(self, dictx, verbose=False, get_unfitted=False, whoswho=False, centered=False):
 
         if whoswho:
             names=[]
@@ -301,7 +305,7 @@ class LogGaborFit(LogGabor):
                 N_X, N_Y = int(np.sqrt(dictx.shape[1])), int(np.sqrt(dictx.shape[1]))
                 dict_ = np.reshape(dictx[i, :], (N_X, N_Y))
                 #print(dictx_fit[i, :].shape)#, dictx_fit_param[i, :].shape, self.LogGaborFit(dict_))
-                patch_fit, out_params = self.LogGaborFit(dict_)
+                patch_fit, out_params = self.LogGaborFit(dict_, centered=centered)
                 dictx_fit[i, :] = patch_fit.ravel()
                 dictx_fit_param[i, :] = np.array([out_params[key].value for key in list(out_params)])
             except ValueError as e:
