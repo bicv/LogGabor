@@ -227,11 +227,16 @@ class LogGaborFit(LogGabor):
         fit_params.add('y_pos', value=idx[1], min=0, max=N_Y)
         fit_params.add('theta', value=self.theta[idx[2]], min=-np.pi/2, max=np.pi/2)
         fit_params.add('sf_0', value=self.sf_0[idx[3]], min=0.001)
-        fit_params.add('phase', value=np.angle(C[idx]))
-        fit_params.add('B_sf', value=self.pe.B_theta, min=0.001)
-        fit_params.add('B_theta', value=self.pe.B_sf, min=0.001)
+        fit_params.add('phase', value=np.angle(C[idx]), min=-np.pi, max=np.pi)
+        fit_params.add('B_sf', value=self.pe.B_sf, min=0.001, vary=False)
+        fit_params.add('B_theta', value=self.pe.B_theta, min=0.001, vary=False)
 
-        out = minimize(self.residual, fit_params, kws={'data':patch}, nan_policy='omit')
+        # step 1
+        out = minimize(self.residual, params=fit_params, kws={'data':patch}, nan_policy='omit')
+        # step 2
+        out.params['B_sf'].set(vary=True)
+        out.params['B_theta'].set(vary=True)
+        out = minimize(self.residual, params=out.params, kws={'data':patch}, nan_policy='omit', method='Nelder-Mead')
 
         self.set_size((N_X + N_X // 2, N_Y + N_Y // 2))
 
@@ -248,14 +253,15 @@ class LogGaborFit(LogGabor):
         parvals = pars.valuesdict()
         x_pos = parvals['x_pos']
         y_pos = parvals['y_pos']
-        theta = parvals['theta']  # % np.pi
+        theta = (parvals['theta']  % np.pi)  - np.pi/2
         B_theta = parvals['B_theta']
         sf_0 = np.abs(parvals['sf_0'])
         B_sf = parvals['B_sf']
-        phase = parvals['phase']  # % (2*np.pi)
+        phase = (parvals['phase']  % (2*np.pi)) - np.pi
 
         model = self.loggabor_image(x_pos, y_pos, theta, sf_0, phase, B_sf, B_theta)
 
+        if np.sqrt(np.sum(model ** 2)) == 0: print('warning: zero norm model with pars=', pars)
         #energy norm
         model /= np.sqrt(np.sum(model ** 2))
         data /= np.sqrt(np.sum(data ** 2))
@@ -298,10 +304,10 @@ class LogGaborFit(LogGabor):
                 patch_fit, out_params = self.LogGaborFit(dict_)
                 dictx_fit[i, :] = patch_fit.ravel()
                 dictx_fit_param[i, :] = np.array([out_params[key].value for key in list(out_params)])
-            except ValueError:
+            except ValueError as e:
                 print(out_params)
                 if verbose:
-                    print("Couldn't fit patch number % 3i" %i)
+                    print("Couldn't fit patch number % 3i" % (i+1), "error=", e)
                 dictx_fit[i, :] = np.zeros((1, dictx.shape[1]))
                 dictx_fit_param[i, :] = np.zeros((1, 7))
                 idx_unfitted.append(i)
