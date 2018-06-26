@@ -37,7 +37,7 @@
 'datapath': 'database',
 'ext' : '.pdf',
 'figsize': 14.,
-'formats': ['pdf', 'svg', 'jpg'],
+'formats': ['pdf', 'png', 'jpg'],
 'dpi': 450,
 'verbose': 0,
 }
