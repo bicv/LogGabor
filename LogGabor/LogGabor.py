@@ -240,16 +240,17 @@ class LogGaborFit(LogGabor):
         fit_params.add('y_pos', value=idx[1], min=0, max=N_Y)
         fit_params.add('theta', value=self.theta[idx[2]], min=-np.pi/2, max=np.pi/2)
         fit_params.add('sf_0', value=self.sf_0[idx[3]], min=0.001)
-        fit_params.add('B_sf', value=self.pe.B_sf, min=0.001, vary=False)
-        fit_params.add('B_theta', value=self.pe.B_theta, min=0.001, vary=False)
         fit_params.add('phase', value=np.angle(C[idx]))
+        fit_params.add('B_sf', value=self.pe.B_sf, min=0.001, vary=True)
+        fit_params.add('B_theta', value=self.pe.B_theta, min=0.001, vary=True)
+        
 
         # step 1
         out = minimize(self.residual, params=fit_params, kws={'data':patch}, nan_policy='omit')
         # step 2
-        out.params['B_sf'].set(vary=True)
-        out.params['B_theta'].set(vary=True)
-        out = minimize(self.residual, params=out.params, kws={'data':patch}, nan_policy='omit', method='Nelder-Mead')
+        #out.params['B_sf'].set(vary=True)
+        #out.params['B_theta'].set(vary=True)
+        #out = minimize(self.residual, params=out.params, kws={'data':patch}, nan_policy='omit', method='Nelder-Mead')
 
         if do_border: self.set_size((N_X + N_X // 2, N_Y + N_Y // 2))
         patch_fit = self.loggabor_image(**out.params)
