@@ -6,9 +6,8 @@ __version__ = '20191113'
 __licence__ = 'GPLv2'
 from SLIP import imread
 from .LogGabor import LogGabor, LogGaborFit
-
+############################  FIGURES   ########################################
 def init_pylab():
-    ############################  FIGURES   ########################################
     from NeuroTools import check_dependency
     HAVE_MATPLOTLIB = check_dependency('matplotlib')
     if HAVE_MATPLOTLIB:
