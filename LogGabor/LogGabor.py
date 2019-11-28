@@ -55,6 +55,7 @@ class LogGabor(Image):
         >>> C[x_pos][y_pos][theta][scale] = C.max()
 
         """
+        if self.pe.do_mask: C *= self.mask[..., None]
         ind = np.absolute(C).argmax()
         return np.unravel_index(ind, C.shape)
 
@@ -243,7 +244,7 @@ class LogGaborFit(LogGabor):
         fit_params.add('phase', value=np.angle(C[idx]))
         fit_params.add('B_sf', value=self.pe.B_sf, min=0.001, vary=True)
         fit_params.add('B_theta', value=self.pe.B_theta, min=0.001, vary=True)
-        
+
 
         # step 1
         out = minimize(self.residual, params=fit_params, kws={'data':patch}, nan_policy='omit')
