@@ -45,7 +45,7 @@ class LogGabor(Image):
                 C[:, :, i_theta, i_sf_0] = self.FTfilter(image, FT_lg, full=True)
         return C
 
-    def argmax(self, C):
+    def argmax(self, C, do_mask=None):
         """
         Returns the ArgMax from C by returning the
         (x_pos, y_pos, theta, scale)  tuple
@@ -55,7 +55,8 @@ class LogGabor(Image):
         >>> C[x_pos][y_pos][theta][scale] = C.max()
 
         """
-        if self.pe.do_mask: C *= self.mask[..., None]
+        if do_mask is None: do_mask = self.pe.do_mask
+        if do_mask: C *= self.mask[..., None, None]
         ind = np.absolute(C).argmax()
         return np.unravel_index(ind, C.shape)
 
