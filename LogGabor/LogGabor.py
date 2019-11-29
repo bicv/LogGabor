@@ -56,7 +56,7 @@ class LogGabor(Image):
 
         """
         if do_mask is None: do_mask = self.pe.do_mask
-        if do_mask: C *= self.mask[..., None, None]
+        if do_mask: C *= (self.mask>self.mask.mean())[..., None, None]
         ind = np.absolute(C).argmax()
         return np.unravel_index(ind, C.shape)
 
