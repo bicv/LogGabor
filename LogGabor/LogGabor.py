@@ -244,11 +244,11 @@ class LogGaborFit(LogGabor):
         fit_params.add('sf_0', value=self.sf_0[idx[3]], min=0.001)
         fit_params.add('phase', value=np.angle(C[idx]))
         fit_params.add('B_sf', value=self.pe.B_sf, min=0.001, vary=True)
-        fit_params.add('B_theta', value=self.pe.B_theta, min=0.001, vary=True)
+        fit_params.add('B_theta', value=self.pe.B_theta, min=0.055, vary=True)
 
 
         # step 1
-        out = minimize(self.residual, params=fit_params, kws={'data':patch}, nan_policy='omit')
+        out = minimize(self.residual, params=fit_params, kws={'data':patch}, nan_policy='raise', method = 'leastsq')
         # step 2
         #out.params['B_sf'].set(vary=True)
         #out.params['B_theta'].set(vary=True)
