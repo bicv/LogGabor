@@ -7,6 +7,8 @@ LogGabor
 
 The Log-Gabor function proposed by Field [1987] is an alternative to the Gabor function to efficiently represent edges in natural images. Log-Gabor filters can be constructed with arbitrary bandwidth and the bandwidth can be optimised to produce a filter with minimal spatial extent. We develop here a log-Gabor representation, which is well suited to represent a wide range of natural images.
 
+  ![Comparison of edge function as presented in https://laurentperrinet.github.io/publication/fischer-07-cv](https://laurentperrinet.github.io/publication/fischer-07-cv/figure1.png)
+
 This framework was presented in the following paper by [Sylvain Fischer, Filip Šroubek, Laurent U Perrinet, Rafael Redondo and Gabriel Cristóbal (2007)](https://laurentperrinet.github.io/publication/fischer-07-cv). Examples and documentation is available @ https://pythonhosted.org/LogGabor/ and this package provides with a python implementation.
 
   ![ScreenShot of the implementation provided in https://laurentperrinet.github.io/publication/fischer-07-cv](https://laurentperrinet.github.io/publication/fischer-07-cv/featured.png)
