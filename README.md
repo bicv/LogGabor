@@ -7,7 +7,7 @@ LogGabor
 
 A log-Gabor pyramid is an oriented multiresolution scheme for images inspired by biology.
 
-Examples and documentation is available @ https://pythonhosted.org/LogGabor/
+This was presented in the following paper by [Sylvain Fischer, Filip Šroubek, Laurent U Perrinet, Rafael Redondo and Gabriel Cristóbal (2007)](https://laurentperrinet.github.io/publication/fischer-07-cv). Examples and documentation is available @ https://pythonhosted.org/LogGabor/
 
   ![ScreenShot of the implementation provided in https://laurentperrinet.github.io/publication/fischer-07-cv](https://laurentperrinet.github.io/publication/fischer-07-cv/featured.png)
 
