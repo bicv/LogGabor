@@ -3,7 +3,7 @@
 from __future__ import division, print_function, absolute_import
 __author__ = "Laurent Perrinet INT - CNRS"
 __version__ = '20240419'
-__licence__ = 'GPLv2'
+__licence__ = 'GPLv3'
 from SLIP import imread
 from .LogGabor import LogGabor, LogGaborFit
 ############################  FIGURES   ########################################
