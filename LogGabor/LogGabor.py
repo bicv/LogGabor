@@ -84,7 +84,6 @@ class LogGabor(Image):
                 ax = fig.add_axes((xmin/phi, ymin, size/phi, size), facecolor='w')
             else:
                 ax = fig.add_axes((0, i_sf_0/self.n_levels, 1, 1/self.n_levels), facecolor='w')
-            ax.axis(c='r', lw=1)
             plt.setp(ax, xticks=[], yticks=[])
             im_RGB = np.zeros((self.pe.N_X, self.pe.N_Y, 3))
             for i_theta, theta_ in enumerate(self.theta):
