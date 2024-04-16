@@ -1,6 +1,6 @@
 NAME = LogGabor
-VERSION=`python3 -c'import LogGabor; print(LogGabor.__version__)'`
-PYTHON = python3
+VERSION=`python3.11 -c'import LogGabor; print(LogGabor.__version__)'`
+PYTHON = python3.11
 default: $(NAME).pdf
 
 edit:
@@ -20,7 +20,7 @@ pypi_upload:
 
 pypi_docs:
 	#rm web.zip
-	#ipython3 nbconvert --to html $(NAME).ipynb
+	#ipython3.11 nbconvert --to html $(NAME).ipynb
 	#mv $(NAME).html index.html
 	#runipy $(NAME).ipynb  --html  index.html
 	zip web.zip index.html

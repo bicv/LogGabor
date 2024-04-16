@@ -37,7 +37,7 @@ class LogGabor(Image):
 
     def linear_pyramid(self, image):
 
-        C = np.empty((self.pe.N_X, self.pe.N_Y, self.pe.n_theta, self.n_levels), dtype=np.complex)
+        C = np.empty((self.pe.N_X, self.pe.N_Y, self.pe.n_theta, self.n_levels), dtype=complex)
         for i_sf_0, sf_0 in enumerate(self.sf_0):
             for i_theta, theta in enumerate(self.theta):
                 FT_lg = self.loggabor(0, 0, sf_0=sf_0, B_sf=self.pe.B_sf,
@@ -45,7 +45,7 @@ class LogGabor(Image):
                 C[:, :, i_theta, i_sf_0] = self.FTfilter(image, FT_lg, full=True)
         return C
 
-    def argmax(self, C, do_mask=None):
+    def argmax(self, C):
         """
         Returns the ArgMax from C by returning the
         (x_pos, y_pos, theta, scale)  tuple
@@ -55,8 +55,6 @@ class LogGabor(Image):
         >>> C[x_pos][y_pos][theta][scale] = C.max()
 
         """
-        if do_mask is None: do_mask = self.pe.do_mask
-        if do_mask: C *= (self.mask>self.mask.mean())[..., None, None]
         ind = np.absolute(C).argmax()
         return np.unravel_index(ind, C.shape)
 
@@ -190,7 +188,7 @@ class LogGabor(Image):
 
         env = np.multiply(self.band(sf_0, B_sf), self.orientation(theta, B_theta))
         if not(x_pos==0.) and not(y_pos==0.): # bypass translation whenever none is needed
-              env = env.astype(np.complex128) * self.trans(x_pos*1., y_pos*1.)
+              env = env.astype(complex) * self.trans(x_pos*1., y_pos*1.)
         if preprocess : env *= self.f_mask # retina processing
         # normalizing energy:
         env /= np.sqrt((np.abs(env)**2).mean())
@@ -245,7 +243,7 @@ class LogGaborFit(LogGabor):
         fit_params.add('phase', value=np.angle(C[idx]))
         fit_params.add('B_sf', value=self.pe.B_sf, min=0.001, vary=True)
         fit_params.add('B_theta', value=self.pe.B_theta, min=0.001, vary=True)
-
+        
 
         # step 1
         out = minimize(self.residual, params=fit_params, kws={'data':patch}, nan_policy='omit')
